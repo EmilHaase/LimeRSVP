@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.limersvp.R
 import com.limersvp.core.BookContent
 import com.limersvp.core.Timing
 import com.limersvp.data.BookMeta
@@ -222,7 +223,7 @@ class BookImporter(
             }
         } catch (_: Exception) {
         }
-        return uri.lastPathSegment?.substringAfterLast('/') ?: "Book"
+        return uri.lastPathSegment?.substringAfterLast('/') ?: context.getString(R.string.book_untitled)
     }
 
     private fun saveCover(bytes: ByteArray, out: File): Boolean = try {

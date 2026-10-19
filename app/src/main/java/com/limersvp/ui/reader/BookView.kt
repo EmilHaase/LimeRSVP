@@ -62,7 +62,7 @@ fun BookView(
     val layouts = remember { HashMap<Int, TextLayoutResult>() }
     val hl by rememberUpdatedState(highlight)
     val following by rememberUpdatedState(follow)
-    val family = remember(settings.font) { familyOf(settings.font) }
+    val family = remember(settings.font, p.light) { familyOf(settings.font, p.light) }
 
     LaunchedEffect(Unit) {
         // Settle the first frame so the word sits at the reading line, then follow.

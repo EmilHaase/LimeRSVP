@@ -97,7 +97,7 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
         }
     }
 
-    private fun timingOf(s: Settings) = Timing(s.smartTiming, s.pauses.scale, s.splitLong)
+    private fun timingOf(s: Settings) = Timing(s.smartTiming, s.pauses.scale, s.splitLong, content?.language.orEmpty())
 
     private fun apply(e: RsvpEngine, s: Settings) {
         if (!grabbingSpeed) e.wpm = s.wpm
@@ -130,11 +130,36 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
         }
     }
 
-    fun release() {
+    /**
+     * Finger up. A quick tap (nothing read yet) means "again": back to the start of this
+     * sentence, or of the one before when already there. Going back is how readers repair
+     * what they missed, and plain RSVP takes it away.
+     */
+    fun release(tapBack: Boolean = true) {
         val e = engine ?: return
         if (!e.playing) return
+        val quick = pressNanos != 0L && System.nanoTime() - pressNanos < TAP_NANOS
+        if (tapBack && quick && e.cancelPress()) {
+            pressNanos = 0L
+            e.takeWordsRead()
+            stepBack()
+            return
+        }
         e.release()
         commit()
+    }
+
+    private fun stepBack() {
+        val e = engine ?: return
+        val c = content ?: return
+        val here = c.sentenceStart(e.position)
+        val target = if (here < e.position) here else c.sentenceStart((here - 1).coerceAtLeast(0))
+        if (target == e.position) {
+            haptics.wall(); return
+        }
+        e.seek(target)
+        haptics.tick()
+        save()
     }
 
     /** Undo a press that turned out to be the start of a two-finger gesture. */
@@ -149,7 +174,7 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
 
     fun toggle() {
         val e = engine ?: return
-        if (e.playing) release() else press()
+        if (e.playing) release(tapBack = false) else press()
     }
 
     /** Book the reading stretch that just ended into the statistics, and save the place. */
@@ -279,6 +304,10 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
         release()
         save()
         c.flush()
+    }
+
+    private companion object {
+        const val TAP_NANOS = 200_000_000L
     }
 
     override fun onCleared() {

@@ -38,16 +38,21 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.limersvp.Container
+import com.limersvp.R
 import com.limersvp.data.BookMeta
 import com.limersvp.data.StatsState
 import com.limersvp.ui.components.CountUp
 import com.limersvp.ui.format.Fmt
+import com.limersvp.ui.format.rememberFmt
 import com.limersvp.ui.theme.LocalPalette
 import com.limersvp.ui.theme.Numbers
 import java.time.LocalDate
@@ -56,6 +61,8 @@ import java.time.format.TextStyle
 @Composable
 fun StatsScreen(c: Container, visible: Boolean) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
+    val res = LocalResources.current
     val stats by c.stats.state.collectAsStateWithLifecycle()
     val books by c.library.books.collectAsStateWithLifecycle()
     val settings by c.settings.state.collectAsStateWithLifecycle()
@@ -77,12 +84,12 @@ fun StatsScreen(c: Container, visible: Boolean) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Text("Statistics", style = MaterialTheme.typography.headlineLarge, color = p.text, modifier = Modifier.padding(top = 18.dp, bottom = 6.dp))
+            Text(stringResource(R.string.stats), style = MaterialTheme.typography.headlineLarge, color = p.text, modifier = Modifier.padding(top = 18.dp, bottom = 6.dp))
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Tile("Today", Modifier.weight(1f)) {
-                    CountUp(v(todayStat.ms.toDouble()), { Fmt.spent(it.toLong()) }, big(p.text))
+                Tile(stringResource(R.string.stats_today), Modifier.weight(1f)) {
+                    CountUp(v(todayStat.ms.toDouble()), { fmt.spent(it.toLong()) }, big(p.text))
                     if (settings.dailyGoal > 0) {
                         Spacer(Modifier.height(8.dp))
                         val f = (todayStat.ms / (settings.dailyGoal * 60_000f)).coerceIn(0f, 1f)
@@ -91,41 +98,41 @@ fun StatsScreen(c: Container, visible: Boolean) {
                         }
                     }
                 }
-                Tile("Streak", Modifier.weight(1f)) {
+                Tile(stringResource(R.string.stats_streak), Modifier.weight(1f)) {
                     val s = stats.streak(today)
-                    CountUp(v(s.toDouble()), { "${it.toInt()} ${if (s == 1) "day" else "days"}" }, big(p.text))
+                    CountUp(v(s.toDouble()), { res.getQuantityString(R.plurals.stats_days, it.toInt(), it.toInt()) }, big(p.text))
                 }
             }
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Tile("Real speed", Modifier.weight(1f)) {
+                Tile(stringResource(R.string.stats_real_speed), Modifier.weight(1f)) {
                     val w = stats.avgWpm
-                    if (w == null) Text(Fmt.UNKNOWN, style = big(p.text)) else CountUp(v(w.toDouble()), { "${it.toInt()} wpm" }, big(p.text))
+                    if (w == null) Text(Fmt.UNKNOWN, style = big(p.text)) else CountUp(v(w.toDouble()), { res.getString(R.string.fmt_wpm, it.toInt()) }, big(p.text))
                 }
-                Tile("Total", Modifier.weight(1f)) {
-                    CountUp(v(stats.totalMs.toDouble()), { Fmt.spent(it.toLong()) }, big(p.text))
+                Tile(stringResource(R.string.stats_total), Modifier.weight(1f)) {
+                    CountUp(v(stats.totalMs.toDouble()), { fmt.spent(it.toLong()) }, big(p.text))
                 }
             }
         }
         item { Days(stats, today, settings.dailyGoal) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Tile("Words", Modifier.weight(1f)) { CountUp(v(stats.totalWords.toDouble()), { Fmt.count(it.toLong()) }, mid(p.text)) }
-                Tile("Finished", Modifier.weight(1f)) { CountUp(v(books.count { it.finished }.toDouble()), { it.toInt().toString() }, mid(p.text)) }
-                Tile("Sessions", Modifier.weight(1f)) { CountUp(v(sessions.size.toDouble()), { it.toInt().toString() }, mid(p.text)) }
+                Tile(stringResource(R.string.stats_words), Modifier.weight(1f)) { CountUp(v(stats.totalWords.toDouble()), { fmt.count(it.toLong()) }, mid(p.text)) }
+                Tile(stringResource(R.string.finished), Modifier.weight(1f)) { CountUp(v(books.count { it.finished }.toDouble()), { it.toInt().toString() }, mid(p.text)) }
+                Tile(stringResource(R.string.stats_sessions), Modifier.weight(1f)) { CountUp(v(sessions.size.toDouble()), { it.toInt().toString() }, mid(p.text)) }
             }
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Tile("Usual session", Modifier.weight(1f)) { Text(avgSession?.let { Fmt.spent(it) } ?: Fmt.UNKNOWN, style = mid(p.text)) }
-                Tile("Longest", Modifier.weight(1f)) { Text(longest?.let { Fmt.spent(it) } ?: Fmt.UNKNOWN, style = mid(p.text)) }
+                Tile(stringResource(R.string.stats_usual_session), Modifier.weight(1f)) { Text(avgSession?.let { fmt.spent(it) } ?: Fmt.UNKNOWN, style = mid(p.text)) }
+                Tile(stringResource(R.string.stats_longest), Modifier.weight(1f)) { Text(longest?.let { fmt.spent(it) } ?: Fmt.UNKNOWN, style = mid(p.text)) }
             }
         }
         item { SpeedTrend(stats, today) }
         if (read.isNotEmpty()) {
             item {
-                Text("Books", color = p.dim, fontSize = 13.sp, modifier = Modifier.padding(start = 4.dp, top = 10.dp))
+                Text(stringResource(R.string.stats_books), color = p.dim, fontSize = 13.sp, modifier = Modifier.padding(start = 4.dp, top = 10.dp))
             }
             items(read, key = { it.id }) { b -> BookRow(b, settings.wpm) }
         }
@@ -160,7 +167,7 @@ private fun Days(stats: StatsState, today: LocalDate, goalMin: Int) {
     val mins = days.map { stats.day(it).ms / 60_000f }
     val top = maxOf(mins.maxOrNull() ?: 0f, goalMin.toFloat(), 5f)
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(p.surface).padding(16.dp)) {
-        Text("Last 14 days", color = p.dim, fontSize = 12.sp)
+        Text(pluralStringResource(R.plurals.stats_last_days, 14, 14), color = p.dim, fontSize = 12.sp)
         Spacer(Modifier.height(12.dp))
         Canvas(Modifier.fillMaxWidth().height(120.dp)) {
             val n = days.size
@@ -205,9 +212,9 @@ private fun SpeedTrend(stats: StatsState, today: LocalDate) {
     }
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(p.surface).padding(16.dp)) {
         Row(verticalAlignment = Alignment.Bottom) {
-            Text("Speed, last 30 days", color = p.dim, fontSize = 12.sp, modifier = Modifier.weight(1f))
+            Text(pluralStringResource(R.plurals.stats_speed_days, 30, 30), color = p.dim, fontSize = 12.sp, modifier = Modifier.weight(1f))
             if (pts.isNotEmpty()) {
-                Text("${pts.minOf { it.second }.toInt()}–${pts.maxOf { it.second }.toInt()} wpm", style = Numbers.copy(fontSize = 12.sp, color = p.dim))
+                Text(stringResource(R.string.fmt_wpm_range, pts.minOf { it.second }.toInt(), pts.maxOf { it.second }.toInt()), style = Numbers.copy(fontSize = 12.sp, color = p.dim))
             }
         }
         Spacer(Modifier.height(12.dp))
@@ -230,14 +237,15 @@ private fun SpeedTrend(stats: StatsState, today: LocalDate) {
 @Composable
 private fun BookRow(b: BookMeta, wpm: Int) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(p.surface).padding(16.dp)) {
         Text(b.title, color = p.text, fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.height(8.dp))
         Row {
-            Mini("Read", Fmt.spent(b.readMs))
-            Mini("Speed", if (b.readMs > 30_000) "${b.words * 60_000 / b.readMs} wpm" else Fmt.UNKNOWN)
-            Mini("Done", Fmt.percent(b.fraction))
-            Mini("Left", if (b.finished) "0 min" else if (b.unitsLeft < 0) Fmt.UNKNOWN else Fmt.minutes((b.unitsLeft * 60_000 / wpm).toLong()))
+            Mini(stringResource(R.string.stats_read), fmt.spent(b.readMs))
+            Mini(stringResource(R.string.speed), if (b.readMs > 30_000) stringResource(R.string.fmt_wpm, b.words * 60_000 / b.readMs) else Fmt.UNKNOWN)
+            Mini(stringResource(R.string.stats_done), fmt.percent(b.fraction))
+            Mini(stringResource(R.string.stats_left), if (b.finished) stringResource(R.string.fmt_min, 0) else if (b.unitsLeft < 0) Fmt.UNKNOWN else fmt.minutes((b.unitsLeft * 60_000 / wpm).toLong()))
         }
     }
 }

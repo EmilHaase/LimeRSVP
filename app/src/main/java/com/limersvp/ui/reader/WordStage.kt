@@ -1,6 +1,5 @@
 package com.limersvp.ui.reader
 
-import android.graphics.Typeface
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -16,12 +15,15 @@ import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
+import com.limersvp.R
 import com.limersvp.core.Frame
 import com.limersvp.core.HeadingFrame
 import com.limersvp.core.WordFrame
@@ -33,11 +35,36 @@ import com.limersvp.ui.theme.Palette
 /** Where the eye rests, as a share of the width. Words are placed so their ORP sits here. */
 const val FOCAL_X = 0.42f
 
-fun familyOf(font: WordFont): FontFamily = when (font) {
+/**
+ * [light] is the background: light text on black looks heavier than dark text on white, so the
+ * variable font takes a little weight off in the dark themes.
+ */
+fun familyOf(font: WordFont, light: Boolean = false): FontFamily = when (font) {
+    WordFont.CLEAR -> if (light) clearOnLight else clearOnDark
     WordFont.SANS -> FontFamily.SansSerif
     WordFont.SERIF -> FontFamily.Serif
     WordFont.MONO -> FontFamily.Monospace
-    WordFont.CONDENSED -> FontFamily(Typeface.create("sans-serif-condensed", Typeface.NORMAL))
+}
+
+private fun clear(regular: Int) = FontFamily(
+    Font(R.font.atkinson_next, FontWeight.Normal, variationSettings = FontVariation.Settings(FontVariation.weight(regular))),
+    Font(R.font.atkinson_next, FontWeight.SemiBold, variationSettings = FontVariation.Settings(FontVariation.weight(620))),
+)
+
+private val clearOnDark = clear(380)
+private val clearOnLight = clear(420)
+
+/**
+ * Atkinson Hyperlegible Next covers Latin (all of Czech, Polish, German, French...) but not
+ * Cyrillic, Greek or Asian scripts. A word with such letters is drawn whole in the system font,
+ * never as a mix of two typefaces.
+ */
+fun coveredByClear(text: String): Boolean {
+    for (c in text) {
+        val ok = c.code < 0x0250 || c.code in 0x2000..0x206F || c.code in 0x20A0..0x20CF
+        if (!ok) return false
+    }
+    return true
 }
 
 /**
@@ -48,10 +75,10 @@ fun familyOf(font: WordFont): FontFamily = when (font) {
 fun WordStage(frame: () -> Frame, settings: Settings, modifier: Modifier = Modifier, sizeSp: Int = settings.wordSize) {
     val p = LocalPalette.current
     val measurer = rememberTextMeasurer(cacheSize = 24)
-    val style = remember(settings.font, settings.bold, sizeSp, p.text) {
+    val style = remember(settings.font, settings.bold, sizeSp, p.text, p.light) {
         TextStyle(
             fontSize = sizeSp.sp,
-            fontFamily = familyOf(settings.font),
+            fontFamily = familyOf(settings.font, p.light),
             fontWeight = if (settings.bold) FontWeight.SemiBold else FontWeight.Normal,
             color = p.text,
         )
@@ -120,13 +147,17 @@ fun placeWord(
     val ann = if (f.orpEnd > f.orpStart && f.orpEnd <= f.text.length) {
         AnnotatedString(f.text, listOf(AnnotatedString.Range(SpanStyle(color = p.orp), f.orpStart, f.orpEnd)))
     } else AnnotatedString(f.text)
-    var layout = measurer.measure(ann, style, maxLines = 1, softWrap = false)
+    val wordStyle = if ((style.fontFamily == familyOf(WordFont.CLEAR, false) || style.fontFamily == familyOf(WordFont.CLEAR, true)) &&
+        !coveredByClear(f.text)
+    ) style.copy(fontFamily = FontFamily.SansSerif) else style
+    var layout = measurer.measure(ann, wordStyle, maxLines = 1, softWrap = false)
     var cx = orpCenter(layout, f)
     val left = cx
     val right = layout.size.width - cx
     val scale = minOf(1f, (focal - margin) / left.coerceAtLeast(1f), (width - focal - margin) / right.coerceAtLeast(1f))
     if (scale < 0.999f) {
-        layout = measurer.measure(ann, style.copy(fontSize = style.fontSize * scale.coerceAtLeast(0.4f)), maxLines = 1, softWrap = false)
+        // Never below 60%: under the critical print size reading speed falls off sharply.
+        layout = measurer.measure(ann, wordStyle.copy(fontSize = wordStyle.fontSize * scale.coerceAtLeast(0.6f)), maxLines = 1, softWrap = false)
         cx = orpCenter(layout, f)
     }
     return layout to (focal - cx)

@@ -1,4 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">LimeRSVP</string>
+    <string name="app_name" translatable="false">LimeRSVP</string>
+    <string name="version_line" translatable="false">LimeRSVP 1.0</string>
+
+    <!-- Units and numbers. Estimates wear a "~"; unknown stays "—" (in code). -->
+    <string name="fmt_s">%1$d s</string>
+    <string name="fmt_min">%1$d min</string>
+    <string name="fmt_h_min">%1$d h %2$02d min</string>
+    <string name="fmt_h">%1$s h</string>
+    <string name="fmt_about">~%1$s</string>
+    <string name="fmt_percent">%1$d%%</string>
+    <string name="fmt_thousands">%1$sk</string>
+    <string name="fmt_millions">%1$sM</string>
+    <!-- Time left, e.g. "~12 min left". -->
+    <string name="fmt_left">%1$s left</string>
+    <!-- Time left in the chapter, e.g. "~12 min in chapter". Shares one line with the speed knob. -->
+    <string name="fmt_in_chapter">%1$s in chapter</string>
+    <!-- Words per minute, under the number on the speed knob: keep it very short. -->
+    <string name="wpm">wpm</string>
+    <string name="fmt_wpm">%1$d wpm</string>
+    <string name="fmt_wpm_range">%1$d–%2$d wpm</string>
+
+    <!-- Shared words. -->
+    <string name="library">Library</string>
+    <string name="finished">Finished</string>
+    <string name="speed">Speed</string>
+    <string name="off">Off</string>
+
+    <!-- Library. -->
+    <string name="library_already">Already in your library</string>
+    <string name="library_empty">Add an EPUB or PDF</string>
+    <string name="library_add">Add a book</string>
+    <string name="library_sample">Try a sample</string>
+    <string name="library_continue">Continue</string>
+    <string name="library_mark_unread">Mark as unread</string>
+    <string name="library_mark_finished">Mark as finished</string>
+    <string name="library_start_over">Start over</string>
+    <string name="library_remove">Hold to remove</string>
+    <!-- One line under a book's cover. -->
+    <string name="book_importing">Getting it ready</string>
+    <string name="book_locked">Locked with a password</string>
+    <string name="book_no_text">No text, only images</string>
+    <string name="book_not_a_book">Not a book file</string>
+    <string name="book_too_big">Too big for this phone</string>
+    <string name="book_failed">Couldn\'t read it · tap to retry</string>
+    <!-- Title of a book whose file has no name. -->
+    <string name="book_untitled">Book</string>
+
+    <!-- Reader. -->
+    <string name="reader_preparing">Preparing the book</string>
+    <string name="reader_opening">Opening the book</string>
+    <string name="reader_missing">This book can\'t be opened.</string>
+    <string name="reader_missing_hint">Remove it from the library and add the file again.</string>
+    <!-- Chip after a jump, e.g. "Back to 34%". -->
+    <string name="reader_back_to">Back to %1$s</string>
+    <!-- Under the time spent on a finished book. -->
+    <string name="reader_reading">reading</string>
+    <string name="reader_wpm_average">wpm average</string>
+    <string name="reader_read_again">Read again</string>
+    <!-- The word shown in the reading options when no word is on screen. -->
+    <string name="reader_sample_word">Reading</string>
+
+    <!-- Chapters and reading options. -->
+    <string name="chapters">Chapters</string>
+    <string name="chapters_none">This book has no chapters.</string>
+    <string name="opt_size">Size</string>
+    <string name="opt_theme">Theme</string>
+    <string name="opt_highlight">Highlight</string>
+    <string name="opt_font">Font</string>
+    <string name="opt_bold">Bold</string>
+    <string name="opt_guide">Focus guide</string>
+    <string name="opt_context">Sentence when stopped</string>
+    <string name="opt_pauses">Pause after sentences</string>
+    <string name="opt_ramp">Speed-up when you start</string>
+    <string name="opt_dim">Screen dimmer</string>
+    <!-- Choices share one row of four: keep each to one short word. -->
+    <string name="font_clear">Clear</string>
+    <string name="font_sans">Sans</string>
+    <string name="font_serif">Serif</string>
+    <string name="font_mono">Mono</string>
+    <string name="pause_none">None</string>
+    <string name="pause_light">Light</string>
+    <string name="pause_normal">Normal</string>
+    <string name="pause_long">Long</string>
+    <string name="ramp_quick">Quick</string>
+    <string name="ramp_gentle">Gentle</string>
+    <string name="ramp_slow">Slow</string>
+    <!-- Under five small theme swatches. -->
+    <string name="theme_black">Black</string>
+    <string name="theme_night_red">Night red</string>
+    <string name="theme_amber">Amber</string>
+    <string name="theme_dim">Dim</string>
+    <string name="theme_day">Day</string>
+
+    <!-- Settings. -->
+    <string name="settings">Settings</string>
+    <string name="settings_reading">Reading</string>
+    <string name="settings_start_by">Start reading by</string>
+    <string name="play_hold">Holding</string>
+    <string name="play_tap">Tapping</string>
+    <string name="settings_rewind">Back to the sentence start after a break</string>
+    <string name="settings_stop_chapter">Stop at the end of each chapter</string>
+    <string name="settings_skip_front">Open new books at the first chapter</string>
+    <string name="settings_timing">Timing</string>
+    <string name="settings_smart_timing">Longer words stay longer</string>
+    <string name="settings_split_long">Split very long words</string>
+    <string name="settings_look">Look</string>
+    <string name="settings_controls">Controls</string>
+    <string name="settings_volume_keys">Volume buttons</string>
+    <string name="volume_keys_volume">Volume</string>
+    <string name="volume_keys_read">Hold to read</string>
+    <string name="settings_vibration">Vibration</string>
+    <string name="vibration_soft">Soft</string>
+    <string name="vibration_strong">Strong</string>
+    <string name="settings_keep_screen_on">Keep the screen on while reading</string>
+    <string name="settings_daily_goal">Daily goal</string>
+    <!-- No goal; one of five narrow choices next to "10 min". -->
+    <string name="goal_off">Off</string>
+    <!-- The word shown in the settings preview. -->
+    <string name="settings_sample_word">Lime</string>
+
+    <!-- Statistics. Tile labels are one short line. -->
+    <string name="stats">Statistics</string>
+    <string name="stats_today">Today</string>
+    <string name="stats_streak">Streak</string>
+    <string name="stats_real_speed">Real speed</string>
+    <string name="stats_total">Total</string>
+    <string name="stats_words">Words</string>
+    <string name="stats_sessions">Sessions</string>
+    <string name="stats_usual_session">Usual session</string>
+    <string name="stats_longest">Longest</string>
+    <string name="stats_books">Books</string>
+    <string name="stats_read">Read</string>
+    <string name="stats_done">Done</string>
+    <string name="stats_left">Left</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="stats_last_days">
+        <item quantity="one">Last %d day</item>
+        <item quantity="other">Last %d days</item>
+    </plurals>
+    <plurals name="stats_speed_days">
+        <item quantity="one">Speed, last %d day</item>
+        <item quantity="other">Speed, last %d days</item>
+    </plurals>
 </resources>

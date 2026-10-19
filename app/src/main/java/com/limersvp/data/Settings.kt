@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 enum class ReaderTheme { OLED, RED, AMBER, DIM, DAY }
-enum class WordFont { SANS, SERIF, MONO, CONDENSED }
+/** CLEAR is Atkinson Hyperlegible Next: letters that cannot be mistaken for each other. */
+enum class WordFont { CLEAR, SANS, SERIF, MONO }
 enum class Highlight { LIME, RED, AMBER, CYAN, PINK, NONE }
 enum class PauseLevel(val scale: Float) { NONE(0f), LIGHT(0.6f), NORMAL(1f), LONG(1.5f) }
 enum class RampLevel(val millis: Long) { OFF(0), QUICK(900), GENTLE(2000), SLOW(3500) }
@@ -19,7 +20,7 @@ enum class HapticLevel { OFF, SOFT, STRONG }
 data class Settings(
     val wpm: Int = 600,
     val wordSize: Int = 44,
-    val font: WordFont = WordFont.SANS,
+    val font: WordFont = WordFont.CLEAR,
     val bold: Boolean = false,
     val theme: ReaderTheme = ReaderTheme.OLED,
     val highlight: Highlight = Highlight.LIME,

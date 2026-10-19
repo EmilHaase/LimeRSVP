@@ -32,8 +32,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.limersvp.R
 import com.limersvp.feel.LocalHaptics
 import com.limersvp.feel.LocalReduceMotion
 import com.limersvp.ui.theme.LocalPalette
@@ -269,7 +271,7 @@ fun SpeedKnob(
                 wpm.toString(),
                 style = Numbers.copy(fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = p.text),
             )
-            Text("wpm", style = Numbers.copy(fontSize = 9.sp, color = p.dim, letterSpacing = 0.6.sp))
+            Text(stringResource(R.string.wpm), style = Numbers.copy(fontSize = 9.sp, color = p.dim, letterSpacing = 0.6.sp))
         }
     }
 }

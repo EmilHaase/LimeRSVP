@@ -69,15 +69,41 @@ object Scripts {
             UnicodeScript.CYRILLIC -> "ru"
             UnicodeScript.GREEK -> "el"
             UnicodeScript.DEVANAGARI -> "hi"
+            UnicodeScript.LATIN -> guessLatin(sample)
             else -> ""
         }
+    }
+
+    /** Latin-script languages by their telltale letters and most common words. */
+    private fun guessLatin(sample: String): String {
+        val t = sample.lowercase()
+        fun n(chars: String) = t.count { it in chars }
+        fun w(vararg words: String): Int {
+            var c = 0
+            for (x in words) c += Regex("\\b$x\\b").findAll(t).count()
+            return c
+        }
+        val scores = mapOf(
+            "cs" to n("řůě") * 3 + w("je", "se", "na", "že", "jsem", "ale"),
+            "sk" to n("ľĺŕô") * 3 + w("je", "sa", "na", "že", "som", "ale"),
+            "pl" to n("łąęśźż") * 3 + w("nie", "się", "jest", "że"),
+            "de" to n("äöüß") * 2 + w("der", "die", "und", "ist", "nicht", "das"),
+            "fr" to n("éèêçàù") + w("le", "la", "les", "et", "est", "une"),
+            "es" to n("ñ¿¡") * 3 + w("el", "los", "las", "que", "es", "una"),
+            "it" to w("il", "che", "della", "sono", "una", "non"),
+            "pt" to n("ãõ") * 3 + w("não", "uma", "os", "que", "com"),
+            "en" to w("the", "and", "of", "to", "is", "was"),
+        )
+        val best = scores.maxByOrNull { it.value } ?: return ""
+        return if (best.value >= 5) best.key else ""
     }
 }
 
 object Punctuation {
     private const val SENTENCE = ".!?…。！？‼⁇⁈⁉؟।॥။።"
     private const val CLAUSE = ",;:—–、，；：،؛·"
-    private const val CLOSERS = "\"'”’»›)]}」』】〕〉》）"
+    // At the end of a word these all close: Czech/German use “ ‘ « as closing marks („…“, ‚…‘, »…«).
+    private const val CLOSERS = "\"'”’“‘»«›‹)]}」』】〕〉》）"
     const val OPENERS = "\"'“‘„«‹([{「『【〔〈《（¿¡"
     private const val SCENE_BREAK = "*⁂•·~#—-_=◆◇❧§○●◦"
 
@@ -87,6 +113,9 @@ object Punctuation {
         "mar", "apr", "jun", "jul", "aug", "sep", "sept", "oct", "nov", "dec",
         // Czech, German, French, Spanish
         "tj", "tzv", "např", "atd", "apod", "resp", "mj", "sv", "z.b", "bzw", "usw", "ca", "nr",
+        "př", "str", "obr", "tab", "kap", "čl", "odst", "písm", "ing", "mgr", "mudr", "judr", "phdr",
+        "rndr", "doc", "bc", "pí", "sl", "nám", "ul", "tel", "max", "min", "cca", "vč", "popř",
+        "zejm", "příp", "s.r.o", "a.s", "hod", "dr", "dipl", "evtl", "vgl", "ggf", "hr", "fr",
         "mme", "mlle", "sra", "sr", "srta", "ud", "uds",
     )
 
@@ -231,31 +260,68 @@ object LongWords {
         // Prefer the word's own hyphens and slashes.
         val natural = Regex("(?<=[-/–—_.])(?=\\p{L})").split(word).filter { it.isNotEmpty() }
         if (natural.size > 1 && natural.all { Orp.letterCount(it) <= MAX + 2 }) return natural
-        val parts = (letters + MAX - 1) / MAX
-        val per = (letters + parts - 1) / parts
-        val out = ArrayList<String>(parts)
-        val sb = StringBuilder()
-        var count = 0
-        var consumed = 0
+        // Letters with their combining marks, so "ř" or "é" is never cut in half.
+        val units = ArrayList<String>(word.length)
         var i = 0
         while (i < word.length) {
-            val cp = word.codePointAt(i)
-            sb.appendCodePoint(cp)
-            if (Character.isLetterOrDigit(cp)) {
-                count++; consumed++
-            }
-            i += Character.charCount(cp)
-            // Keep combining marks with their letter.
-            while (i < word.length && isMark(word.codePointAt(i))) {
-                val m = word.codePointAt(i); sb.appendCodePoint(m); i += Character.charCount(m)
-            }
-            if (count >= per && letters - consumed >= 3 && out.size < parts - 1) {
-                sb.append('-')
-                out.add(sb.toString()); sb.clear(); count = 0
-            }
+            val start = i
+            i += Character.charCount(word.codePointAt(i))
+            while (i < word.length && isMark(word.codePointAt(i))) i += Character.charCount(word.codePointAt(i))
+            units.add(word.substring(start, i))
         }
-        if (sb.isNotEmpty()) out.add(sb.toString())
+        val parts = (letters + MAX - 1) / MAX
+        val per = units.size.toFloat() / parts
+        val cuts = ArrayList<Int>(parts - 1)
+        var last = 0
+        for (k in 1 until parts) {
+            val ideal = (per * k).toInt()
+            var best = -1
+            var bestScore = Int.MIN_VALUE
+            for (c in (ideal - 3)..(ideal + 3)) {
+                if (c - last < 3 || units.size - c < 3) continue
+                // Cut where a reader would hyphenate: before a consonant that starts a syllable.
+                val score = syllableScore(units, c) * 4 - kotlin.math.abs(c - ideal)
+                if (score > bestScore) {
+                    bestScore = score; best = c
+                }
+            }
+            if (best < 0) best = ideal.coerceIn(last + 1, units.size - 1)
+            cuts.add(best); last = best
+        }
+        val out = ArrayList<String>(parts)
+        var from = 0
+        for (c in cuts) {
+            out.add(units.subList(from, c).joinToString("") + "-"); from = c
+        }
+        out.add(units.subList(from, units.size).joinToString(""))
         return out
+    }
+
+    /** How natural a hyphen before unit [c] is: V|CV best, VC|CV next, V|V last. */
+    private fun syllableScore(u: List<String>, c: Int): Int {
+        val prev = u[c - 1]
+        val next = u[c]
+        val after = u.getOrNull(c + 1)
+        if (!isLetter(prev) || !isLetter(next)) return 0
+        // Never inside a letter written with two ("ch" is one letter in Czech) or "sch".
+        val pair = (prev + next).lowercase()
+        if (pair in DIGRAPHS) return -3
+        if (pair == "ch" || (c >= 2 && (u[c - 2] + prev + next).lowercase() == "sch")) return -3
+        return when {
+            isVowel(prev) && !isVowel(next) && after != null && isVowel(after) -> 3
+            !isVowel(prev) && !isVowel(next) && after != null && isVowel(after) -> 2
+            isVowel(prev) && isVowel(next) -> 1
+            else -> 0
+        }
+    }
+
+    private val DIGRAPHS = hashSetOf("ch", "ck", "ph", "th", "sh", "gh", "qu", "dz", "dž", "ng", "rh", "wh", "sc", "sz", "cz", "ll", "ny", "gn")
+
+    private fun isLetter(s: String) = s.isNotEmpty() && Character.isLetter(s.codePointAt(0))
+
+    private fun isVowel(s: String): Boolean {
+        val base = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD).firstOrNull()?.lowercaseChar() ?: return false
+        return base in "aeiouyæøœ"
     }
 
     private fun isMark(cp: Int): Boolean {

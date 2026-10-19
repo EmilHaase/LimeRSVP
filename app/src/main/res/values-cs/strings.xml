@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Units and numbers. -->
+    <string name="fmt_s">%1$d s</string>
+    <string name="fmt_min">%1$d min</string>
+    <string name="fmt_h_min">%1$d h %2$02d min</string>
+    <string name="fmt_h">%1$s h</string>
+    <string name="fmt_about">~%1$s</string>
+    <string name="fmt_percent">%1$d %%</string>
+    <string name="fmt_thousands">%1$s tis.</string>
+    <string name="fmt_millions">%1$s mil.</string>
+    <string name="fmt_left">zbývá %1$s</string>
+    <string name="fmt_in_chapter">%1$s v kapitole</string>
+    <!-- "slov/min" does not fit on the knob. -->
+    <string name="wpm">sl/min</string>
+    <string name="fmt_wpm">%1$d sl/min</string>
+    <string name="fmt_wpm_range">%1$d–%2$d sl/min</string>
+
+    <!-- Shared words. -->
+    <string name="library">Knihovna</string>
+    <string name="finished">Dočteno</string>
+    <string name="speed">Rychlost</string>
+    <string name="off">Vypnuto</string>
+
+    <!-- Library. -->
+    <string name="library_already">Už je v knihovně</string>
+    <string name="library_empty">Přidejte EPUB nebo PDF</string>
+    <string name="library_add">Přidat knihu</string>
+    <string name="library_sample">Vyzkoušet ukázku</string>
+    <string name="library_continue">Pokračovat</string>
+    <string name="library_mark_unread">Označit jako nepřečtenou</string>
+    <string name="library_mark_finished">Označit jako dočtenou</string>
+    <string name="library_start_over">Číst od začátku</string>
+    <string name="library_remove">Odebrat podržením</string>
+    <string name="book_importing">Připravuje se</string>
+    <string name="book_locked">Zamčená heslem</string>
+    <string name="book_no_text">Bez textu, jen obrázky</string>
+    <string name="book_not_a_book">Soubor není kniha</string>
+    <string name="book_too_big">Příliš velká pro telefon</string>
+    <string name="book_failed">Nešlo ji přečíst · zkusit znovu</string>
+    <string name="book_untitled">Kniha</string>
+
+    <!-- Reader. -->
+    <string name="reader_preparing">Kniha se připravuje</string>
+    <string name="reader_opening">Kniha se otevírá</string>
+    <string name="reader_missing">Tuto knihu nejde otevřít.</string>
+    <string name="reader_missing_hint">Odeberte ji z knihovny a přidejte soubor znovu.</string>
+    <string name="reader_back_to">Zpět na %1$s</string>
+    <string name="reader_reading">čtení</string>
+    <string name="reader_wpm_average">sl/min v průměru</string>
+    <string name="reader_read_again">Číst znovu</string>
+    <string name="reader_sample_word">Čtení</string>
+
+    <!-- Chapters and reading options. -->
+    <string name="chapters">Kapitoly</string>
+    <string name="chapters_none">Tato kniha nemá kapitoly.</string>
+    <string name="opt_size">Velikost</string>
+    <string name="opt_theme">Motiv</string>
+    <string name="opt_highlight">Zvýraznění</string>
+    <string name="opt_font">Písmo</string>
+    <string name="opt_bold">Tučně</string>
+    <string name="opt_guide">Vodicí linky</string>
+    <string name="opt_context">Věta při zastavení</string>
+    <string name="opt_pauses">Pauza po větách</string>
+    <string name="opt_ramp">Rozjezd na začátku</string>
+    <string name="opt_dim">Ztlumení obrazovky</string>
+    <string name="font_clear">Čitelné</string>
+    <string name="font_sans">Bez patek</string>
+    <string name="font_serif">Patkové</string>
+    <string name="font_mono">Strojové</string>
+    <string name="pause_none">Žádná</string>
+    <string name="pause_light">Krátká</string>
+    <string name="pause_normal">Běžná</string>
+    <string name="pause_long">Dlouhá</string>
+    <string name="ramp_quick">Rychlý</string>
+    <string name="ramp_gentle">Mírný</string>
+    <string name="ramp_slow">Pomalý</string>
+    <string name="theme_black">Černý</string>
+    <string name="theme_night_red">Červený</string>
+    <string name="theme_amber">Jantarový</string>
+    <string name="theme_dim">Tlumený</string>
+    <string name="theme_day">Denní</string>
+
+    <!-- Settings. -->
+    <string name="settings">Nastavení</string>
+    <string name="settings_reading">Čtení</string>
+    <string name="settings_start_by">Spustit čtení</string>
+    <string name="play_hold">Držením</string>
+    <string name="play_tap">Klepnutím</string>
+    <string name="settings_rewind">Po přestávce zpět na začátek věty</string>
+    <string name="settings_stop_chapter">Zastavit na konci každé kapitoly</string>
+    <string name="settings_skip_front">Otevírat nové knihy na první kapitole</string>
+    <string name="settings_timing">Časování</string>
+    <string name="settings_smart_timing">Delší slova vydrží déle</string>
+    <string name="settings_split_long">Dělit velmi dlouhá slova</string>
+    <string name="settings_look">Vzhled</string>
+    <string name="settings_controls">Ovládání</string>
+    <string name="settings_volume_keys">Tlačítka hlasitosti</string>
+    <string name="volume_keys_volume">Hlasitost</string>
+    <string name="volume_keys_read">Číst držením</string>
+    <string name="settings_vibration">Vibrace</string>
+    <string name="vibration_soft">Jemná</string>
+    <string name="vibration_strong">Silná</string>
+    <string name="settings_keep_screen_on">Při čtení nechat obrazovku zapnutou</string>
+    <string name="settings_daily_goal">Denní cíl</string>
+    <string name="goal_off">Žádný</string>
+    <string name="settings_sample_word">Limetka</string>
+
+    <!-- Statistics. -->
+    <string name="stats">Statistiky</string>
+    <string name="stats_today">Dnes</string>
+    <string name="stats_streak">V řadě</string>
+    <string name="stats_real_speed">Skutečná rychlost</string>
+    <string name="stats_total">Celkem</string>
+    <string name="stats_words">Slova</string>
+    <string name="stats_sessions">Sezení</string>
+    <string name="stats_usual_session">Běžné sezení</string>
+    <string name="stats_longest">Nejdelší</string>
+    <string name="stats_books">Knihy</string>
+    <string name="stats_read">Čteno</string>
+    <string name="stats_done">Hotovo</string>
+    <string name="stats_left">Zbývá</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d den</item>
+        <item quantity="few">%d dny</item>
+        <item quantity="many">%d dne</item>
+        <item quantity="other">%d dní</item>
+    </plurals>
+    <plurals name="stats_last_days">
+        <item quantity="one">Poslední %d den</item>
+        <item quantity="few">Poslední %d dny</item>
+        <item quantity="many">Posledních %d dne</item>
+        <item quantity="other">Posledních %d dní</item>
+    </plurals>
+    <plurals name="stats_speed_days">
+        <item quantity="one">Rychlost, poslední %d den</item>
+        <item quantity="few">Rychlost, poslední %d dny</item>
+        <item quantity="many">Rychlost, posledních %d dne</item>
+        <item quantity="other">Rychlost, posledních %d dní</item>
+    </plurals>
+</resources>

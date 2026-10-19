@@ -186,7 +186,7 @@ fun Toggle(on: Boolean, modifier: Modifier = Modifier) {
 fun <T> Choices(
     options: List<T>,
     selected: T,
-    label: (T) -> String,
+    label: @Composable (T) -> String,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
 ) {

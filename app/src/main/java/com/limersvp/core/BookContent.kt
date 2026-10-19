@@ -162,7 +162,7 @@ class BookContent(
         private val MAGIC = byteArrayOf('L'.code.toByte(), 'R'.code.toByte(), 'S'.code.toByte(), 'V'.code.toByte())
 
         /** Bump when the parsers change what they produce; old caches are re-parsed. */
-        const val FORMAT = 4
+        const val FORMAT = 5
 
         fun readFrom(file: File): BookContent? = try {
             read(file)

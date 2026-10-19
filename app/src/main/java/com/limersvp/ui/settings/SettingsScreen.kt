@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,7 +67,8 @@ fun SettingsScreen(c: Container, onOpen: (String) -> Unit) {
     val s by c.settings.state.collectAsStateWithLifecycle()
     val haptics = LocalHaptics.current
     fun set(block: (Settings) -> Settings) = c.settings.update(block)
-    val sample = remember { WordFrame("Lime", Orp.range("Lime").first, Orp.range("Lime").last + 1) }
+    val word = stringResource(R.string.settings_sample_word)
+    val sample = remember(word) { WordFrame(word, Orp.range(word).first, Orp.range(word).last + 1) }
 
     Column(
         Modifier
@@ -75,57 +77,57 @@ fun SettingsScreen(c: Container, onOpen: (String) -> Unit) {
             .verticalScroll(rememberScrollState())
             .padding(bottom = 120.dp),
     ) {
-        Text("Settings", style = MaterialTheme.typography.headlineLarge, color = p.text, modifier = Modifier.padding(start = 18.dp, top = 18.dp, bottom = 6.dp))
+        Text(stringResource(R.string.settings), style = MaterialTheme.typography.headlineLarge, color = p.text, modifier = Modifier.padding(start = 18.dp, top = 18.dp, bottom = 6.dp))
 
-        Section("Reading") {
-            Label("Start reading by")
-            Choices(PlayMode.entries, s.playMode, { if (it == PlayMode.HOLD) "Holding" else "Tapping" }, { v -> set { it.copy(playMode = v) } }, pad())
-            Label("Speed-up when you start")
-            Choices(RampLevel.entries, s.ramp, ::rampName, { v -> set { it.copy(ramp = v) } }, pad())
+        Section(stringResource(R.string.settings_reading)) {
+            Label(stringResource(R.string.settings_start_by))
+            Choices(PlayMode.entries, s.playMode, { stringResource(if (it == PlayMode.HOLD) R.string.play_hold else R.string.play_tap) }, { v -> set { it.copy(playMode = v) } }, pad())
+            Label(stringResource(R.string.opt_ramp))
+            Choices(RampLevel.entries, s.ramp, { rampName(it) }, { v -> set { it.copy(ramp = v) } }, pad())
             Spacer(Modifier.height(6.dp))
-            Switch("Back to the sentence start after a break", s.rewind) { set { it.copy(rewind = !it.rewind) } }
-            Switch("Stop at the end of each chapter", s.stopAtChapter) { set { it.copy(stopAtChapter = !it.stopAtChapter) } }
-            Switch("Open new books at the first chapter", s.skipFrontMatter) { set { it.copy(skipFrontMatter = !it.skipFrontMatter) } }
+            Switch(stringResource(R.string.settings_rewind), s.rewind) { set { it.copy(rewind = !it.rewind) } }
+            Switch(stringResource(R.string.settings_stop_chapter), s.stopAtChapter) { set { it.copy(stopAtChapter = !it.stopAtChapter) } }
+            Switch(stringResource(R.string.settings_skip_front), s.skipFrontMatter) { set { it.copy(skipFrontMatter = !it.skipFrontMatter) } }
         }
 
-        Section("Timing") {
-            Switch("Longer words stay longer", s.smartTiming) { set { it.copy(smartTiming = !it.smartTiming) } }
-            Label("Pause after sentences")
-            Choices(PauseLevel.entries, s.pauses, ::pauseName, { v -> set { it.copy(pauses = v) } }, pad())
+        Section(stringResource(R.string.settings_timing)) {
+            Switch(stringResource(R.string.settings_smart_timing), s.smartTiming) { set { it.copy(smartTiming = !it.smartTiming) } }
+            Label(stringResource(R.string.opt_pauses))
+            Choices(PauseLevel.entries, s.pauses, { pauseName(it) }, { v -> set { it.copy(pauses = v) } }, pad())
             Spacer(Modifier.height(6.dp))
-            Switch("Split very long words", s.splitLong) { set { it.copy(splitLong = !it.splitLong) } }
+            Switch(stringResource(R.string.settings_split_long), s.splitLong) { set { it.copy(splitLong = !it.splitLong) } }
         }
 
-        Section("Look") {
+        Section(stringResource(R.string.settings_look)) {
             WordStage({ sample }, s, Modifier.fillMaxWidth().height(110.dp))
-            Label("Theme")
+            Label(stringResource(R.string.opt_theme))
             ThemeDots(s.theme) { t -> set { it.copy(theme = t) } }
             if (s.theme != ReaderTheme.RED && s.theme != ReaderTheme.AMBER) {
-                Label("Highlight")
+                Label(stringResource(R.string.opt_highlight))
                 HighlightDots(s) { h -> set { it.copy(highlight = h) } }
             }
-            Label("Font")
-            Choices(WordFont.entries, s.font, ::fontName, { f -> set { it.copy(font = f) } }, pad())
-            Label("Size")
+            Label(stringResource(R.string.opt_font))
+            Choices(WordFont.entries, s.font, { fontName(it) }, { f -> set { it.copy(font = f) } }, pad())
+            Label(stringResource(R.string.opt_size))
             Slider(
                 value = s.wordSize.toFloat(), onValueChange = { v -> set { it.copy(wordSize = v.toInt()) } },
                 valueRange = 26f..72f,
                 colors = SliderDefaults.colors(thumbColor = p.accent, activeTrackColor = p.accent, inactiveTrackColor = p.track),
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
-            Switch("Bold", s.bold) { set { it.copy(bold = !it.bold) } }
-            Switch("Focus guide", s.guide) { set { it.copy(guide = !it.guide) } }
-            Switch("Sentence when stopped", s.context) { set { it.copy(context = !it.context) } }
+            Switch(stringResource(R.string.opt_bold), s.bold) { set { it.copy(bold = !it.bold) } }
+            Switch(stringResource(R.string.opt_guide), s.guide) { set { it.copy(guide = !it.guide) } }
+            Switch(stringResource(R.string.opt_context), s.context) { set { it.copy(context = !it.context) } }
         }
 
-        Section("Controls") {
-            Label("Volume buttons")
+        Section(stringResource(R.string.settings_controls)) {
+            Label(stringResource(R.string.settings_volume_keys))
             Choices(VolumeKeys.entries, s.volumeKeys, {
-                when (it) { VolumeKeys.OFF -> "Volume"; VolumeKeys.SPEED -> "Speed"; VolumeKeys.READ -> "Hold to read" }
+                stringResource(when (it) { VolumeKeys.OFF -> R.string.volume_keys_volume; VolumeKeys.SPEED -> R.string.speed; VolumeKeys.READ -> R.string.volume_keys_read })
             }, { v -> set { it.copy(volumeKeys = v) } }, pad())
-            Label("Vibration")
+            Label(stringResource(R.string.settings_vibration))
             Choices(HapticLevel.entries, s.haptics, {
-                when (it) { HapticLevel.OFF -> "Off"; HapticLevel.SOFT -> "Soft"; HapticLevel.STRONG -> "Strong" }
+                stringResource(when (it) { HapticLevel.OFF -> R.string.off; HapticLevel.SOFT -> R.string.vibration_soft; HapticLevel.STRONG -> R.string.vibration_strong })
             }, { v ->
                 set { it.copy(haptics = v) }
                 // Feel the choice at once.
@@ -133,11 +135,11 @@ fun SettingsScreen(c: Container, onOpen: (String) -> Unit) {
                 haptics.test()
             }, pad())
             Spacer(Modifier.height(6.dp))
-            Switch("Keep the screen on while reading", s.keepScreenOn) { set { it.copy(keepScreenOn = !it.keepScreenOn) } }
+            Switch(stringResource(R.string.settings_keep_screen_on), s.keepScreenOn) { set { it.copy(keepScreenOn = !it.keepScreenOn) } }
         }
 
-        Section("Daily goal") {
-            Choices(listOf(0, 10, 20, 30, 60), s.dailyGoal, { if (it == 0) "Off" else "$it min" }, { v -> set { it.copy(dailyGoal = v) } }, pad())
+        Section(stringResource(R.string.settings_daily_goal)) {
+            Choices(listOf(0, 10, 20, 30, 60), s.dailyGoal, { if (it == 0) stringResource(R.string.goal_off) else stringResource(R.string.fmt_min, it) }, { v -> set { it.copy(dailyGoal = v) } }, pad())
             Spacer(Modifier.height(8.dp))
         }
 
@@ -201,7 +203,7 @@ private fun About(c: Container, onOpen: (String) -> Unit) {
                 }
                 .padding(horizontal = 24.dp, vertical = 8.dp)
         ) {
-            Text("LimeRSVP 1.0", color = p.faint, fontSize = 13.sp)
+            Text(stringResource(R.string.version_line), color = p.faint, fontSize = 13.sp)
         }
     }
 }

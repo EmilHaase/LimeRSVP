@@ -32,10 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.limersvp.R
 import com.limersvp.core.BookContent
 import com.limersvp.core.WordFrame
 import com.limersvp.data.Highlight
@@ -48,7 +50,7 @@ import com.limersvp.ui.Glyphs
 import com.limersvp.ui.components.Choices
 import com.limersvp.ui.components.SettingRow
 import com.limersvp.ui.components.Toggle
-import com.limersvp.ui.format.Fmt
+import com.limersvp.ui.format.rememberFmt
 import com.limersvp.ui.theme.LocalPalette
 import com.limersvp.ui.theme.Numbers
 import com.limersvp.ui.theme.Palettes
@@ -63,12 +65,13 @@ fun ChapterList(
     modifier: Modifier = Modifier,
 ) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
     val current = content.chapterIndexOf(position)
     val state = rememberLazyListState(initialFirstVisibleItemIndex = (current - 2).coerceAtLeast(0))
     Column(modifier) {
-        Text("Chapters", color = p.text, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 24.dp, top = 22.dp, bottom = 8.dp))
+        Text(stringResource(R.string.chapters), color = p.text, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 24.dp, top = 22.dp, bottom = 8.dp))
         if (content.chapters.isEmpty()) {
-            Text("This book has no chapters.", color = p.dim, fontSize = 15.sp, modifier = Modifier.padding(24.dp))
+            Text(stringResource(R.string.chapters_none), color = p.dim, fontSize = 15.sp, modifier = Modifier.padding(24.dp))
             return@Column
         }
         LazyColumn(state = state, modifier = Modifier.fillMaxWidth()) {
@@ -113,7 +116,7 @@ fun ChapterList(
                         Icon(Glyphs.Check, null, tint = p.dim, modifier = Modifier.size(18.dp))
                     } else {
                         val left = if (isCurrent) msOf(position, end) else ms
-                        Text(Fmt.minutes(left), style = Numbers.copy(fontSize = 13.sp, color = p.dim))
+                        Text(fmt.minutes(left), style = Numbers.copy(fontSize = 13.sp, color = p.dim))
                     }
                 }
             }
@@ -133,7 +136,7 @@ fun ReaderOptions(
     Column(modifier.verticalScroll(rememberScrollState()).padding(bottom = 16.dp)) {
         // The real word, at the real size, in the real colours.
         WordStage({ sample }, settings, Modifier.fillMaxWidth().height(120.dp))
-        Text("Size", color = p.dim, fontSize = 13.sp, modifier = Modifier.padding(start = 20.dp))
+        Text(stringResource(R.string.opt_size), color = p.dim, fontSize = 13.sp, modifier = Modifier.padding(start = 20.dp))
         Slider(
             value = settings.wordSize.toFloat(),
             onValueChange = { v -> onChange { it.copy(wordSize = v.toInt()) } },
@@ -141,23 +144,23 @@ fun ReaderOptions(
             colors = SliderDefaults.colors(thumbColor = p.accent, activeTrackColor = p.accent, inactiveTrackColor = p.track),
             modifier = Modifier.padding(horizontal = 16.dp),
         )
-        Label("Theme")
+        Label(stringResource(R.string.opt_theme))
         ThemeDots(settings.theme) { t -> onChange { it.copy(theme = t) } }
         if (settings.theme != ReaderTheme.RED && settings.theme != ReaderTheme.AMBER) {
-            Label("Highlight")
+            Label(stringResource(R.string.opt_highlight))
             HighlightDots(settings) { h -> onChange { it.copy(highlight = h) } }
         }
-        Label("Font")
+        Label(stringResource(R.string.opt_font))
         Choices(WordFont.entries, settings.font, { fontName(it) }, { f -> onChange { it.copy(font = f) } }, Modifier.padding(horizontal = 20.dp))
         Spacer(Modifier.height(8.dp))
-        SettingRow("Bold", onClick = { onChange { it.copy(bold = !it.bold) } }) { Toggle(settings.bold) }
-        SettingRow("Focus guide", onClick = { onChange { it.copy(guide = !it.guide) } }) { Toggle(settings.guide) }
-        SettingRow("Sentence when stopped", onClick = { onChange { it.copy(context = !it.context) } }) { Toggle(settings.context) }
-        Label("Pause after sentences")
+        SettingRow(stringResource(R.string.opt_bold), onClick = { onChange { it.copy(bold = !it.bold) } }) { Toggle(settings.bold) }
+        SettingRow(stringResource(R.string.opt_guide), onClick = { onChange { it.copy(guide = !it.guide) } }) { Toggle(settings.guide) }
+        SettingRow(stringResource(R.string.opt_context), onClick = { onChange { it.copy(context = !it.context) } }) { Toggle(settings.context) }
+        Label(stringResource(R.string.opt_pauses))
         Choices(PauseLevel.entries, settings.pauses, { pauseName(it) }, { v -> onChange { it.copy(pauses = v) } }, Modifier.padding(horizontal = 20.dp))
-        Label("Speed-up when you start")
+        Label(stringResource(R.string.opt_ramp))
         Choices(RampLevel.entries, settings.ramp, { rampName(it) }, { v -> onChange { it.copy(ramp = v) } }, Modifier.padding(horizontal = 20.dp))
-        Label("Screen dimmer")
+        Label(stringResource(R.string.opt_dim))
         Slider(
             value = settings.dim,
             onValueChange = { v -> onChange { it.copy(dim = v) } },
@@ -173,22 +176,38 @@ private fun Label(text: String) {
     Text(text, color = LocalPalette.current.dim, fontSize = 13.sp, modifier = Modifier.padding(start = 20.dp, top = 14.dp, bottom = 8.dp))
 }
 
-fun fontName(f: WordFont) = when (f) {
-    WordFont.SANS -> "Sans"; WordFont.SERIF -> "Serif"; WordFont.MONO -> "Mono"; WordFont.CONDENSED -> "Narrow"
-}
+@Composable
+fun fontName(f: WordFont) = stringResource(
+    when (f) {
+        WordFont.CLEAR -> R.string.font_clear; WordFont.SANS -> R.string.font_sans
+        WordFont.SERIF -> R.string.font_serif; WordFont.MONO -> R.string.font_mono
+    }
+)
 
-fun pauseName(v: PauseLevel) = when (v) {
-    PauseLevel.NONE -> "None"; PauseLevel.LIGHT -> "Light"; PauseLevel.NORMAL -> "Normal"; PauseLevel.LONG -> "Long"
-}
+@Composable
+fun pauseName(v: PauseLevel) = stringResource(
+    when (v) {
+        PauseLevel.NONE -> R.string.pause_none; PauseLevel.LIGHT -> R.string.pause_light
+        PauseLevel.NORMAL -> R.string.pause_normal; PauseLevel.LONG -> R.string.pause_long
+    }
+)
 
-fun rampName(v: RampLevel) = when (v) {
-    RampLevel.OFF -> "Off"; RampLevel.QUICK -> "Quick"; RampLevel.GENTLE -> "Gentle"; RampLevel.SLOW -> "Slow"
-}
+@Composable
+fun rampName(v: RampLevel) = stringResource(
+    when (v) {
+        RampLevel.OFF -> R.string.off; RampLevel.QUICK -> R.string.ramp_quick
+        RampLevel.GENTLE -> R.string.ramp_gentle; RampLevel.SLOW -> R.string.ramp_slow
+    }
+)
 
-fun themeName(t: ReaderTheme) = when (t) {
-    ReaderTheme.OLED -> "Black"; ReaderTheme.RED -> "Night red"; ReaderTheme.AMBER -> "Amber"
-    ReaderTheme.DIM -> "Dim"; ReaderTheme.DAY -> "Day"
-}
+@Composable
+fun themeName(t: ReaderTheme) = stringResource(
+    when (t) {
+        ReaderTheme.OLED -> R.string.theme_black; ReaderTheme.RED -> R.string.theme_night_red
+        ReaderTheme.AMBER -> R.string.theme_amber; ReaderTheme.DIM -> R.string.theme_dim
+        ReaderTheme.DAY -> R.string.theme_day
+    }
+)
 
 /** Each theme as a little swatch of itself: its background with its text and highlight. */
 @Composable

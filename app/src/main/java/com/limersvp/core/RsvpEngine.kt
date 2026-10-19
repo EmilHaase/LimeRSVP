@@ -77,7 +77,7 @@ class RsvpEngine(val content: BookContent, timing: Timing) {
         if (finished) return
         beforePress = position; beforePlaced = userPlaced; beforeReleased = releasedAt
         val since = if (releasedAt == 0L) Long.MAX_VALUE else now - releasedAt
-        if (rewindOnResume && !userPlaced && since > 12_000_000_000L) {
+        if (rewindOnResume && !userPlaced && since > BREAK_NANOS) {
             val s = content.sentenceStart(position, maxBack = 25)
             if (s != position) place(s)
         }
@@ -113,6 +113,8 @@ class RsvpEngine(val content: BookContent, timing: Timing) {
         if (!playing) return
         playing = false
         progress = 0.0
+        restLeftMs = 0.0
+        sinceRestMs = 0.0
         releasedAt = now
         rampFactor = 1f
     }
@@ -154,9 +156,17 @@ class RsvpEngine(val content: BookContent, timing: Timing) {
         val f = rampAt(frameNanos)
         rampFactor = f
         val unitMs = 60_000.0 / (wpm.coerceAtLeast(30) * f)
+        sinceRestMs += dtMs
         var budget = dtMs
         var guard = 0
-        while (budget > 0 && playing && guard++ < 3) {
+        while (budget > 0 && playing && guard++ < 4) {
+            if (restLeftMs > 0) {
+                val use = minOf(budget, restLeftMs)
+                restLeftMs -= use; budget -= use
+                if (restLeftMs > 0) break
+                advance()
+                continue
+            }
             val wordMs = unitMs * currentUnits()
             val left = (1.0 - progress) * wordMs
             if (budget < left) {
@@ -164,10 +174,19 @@ class RsvpEngine(val content: BookContent, timing: Timing) {
             } else {
                 budget -= left
                 progress = 0.0
+                if (endsSentence && sinceRestMs > REST_AFTER_MS && timing.smart && timing.pauseScale > 0f) {
+                    // Stay on the sentence's last word a moment: a natural place to blink.
+                    restLeftMs = REST_MS; sinceRestMs = 0.0
+                    continue
+                }
                 advance()
             }
         }
     }
+
+    private var sinceRestMs = 0.0
+    private var restLeftMs = 0.0
+    private var endsSentence = false
 
     private fun rampAt(now: Long): Float {
         if (rampNanos <= 0L) return 1f
@@ -181,6 +200,8 @@ class RsvpEngine(val content: BookContent, timing: Timing) {
             part++; cacheKey = -1L; return
         }
         val next = nextStart()
+        // A paragraph end or a heading card is already a rest for the eyes.
+        if (content.flag(position, TokenFlags.PARA_END) || content.flag(position, TokenFlags.HEADING)) sinceRestMs = 0.0
         wordsRead += next - position
         if (next >= content.size) {
             playing = false
@@ -211,6 +232,7 @@ class RsvpEngine(val content: BookContent, timing: Timing) {
         position = t
         part = 0
         cacheKey = -1L
+        restLeftMs = 0.0
         parts = if (content.size == 0 || content.flag(t, TokenFlags.HEADING)) emptyList()
         else {
             val w = content.token(t)
@@ -262,10 +284,22 @@ class RsvpEngine(val content: BookContent, timing: Timing) {
         cachedFrame = WordFrame(text, orp.first, orp.last + 1)
         val last = idx == pieces.size - 1
         val flags = if (last) content.flags[p].toInt() else 0
-        cachedUnits = timing.weight(text, flags) + if (!last) 0.1f else 0f
+        val starts = idx == 0 && Timing.isSentenceStart(content, p)
+        cachedUnits = timing.weight(text, flags, starts) + if (!last) 0.1f else 0f
+        endsSentence = last && Punctuation.endsSentence(text)
     }
 
     companion object {
         const val RAMP_FROM = 0.4
+
+        /** A lift longer than this is a break: the next start goes back to the sentence start. */
+        const val BREAK_NANOS = 30_000_000_000L
+
+        /**
+         * RSVP readers blink far less than normal readers, which tires the eyes. After this much
+         * reading without a paragraph break, the next sentence end holds a moment longer.
+         */
+        const val REST_AFTER_MS = 20_000.0
+        const val REST_MS = 380.0
     }
 }

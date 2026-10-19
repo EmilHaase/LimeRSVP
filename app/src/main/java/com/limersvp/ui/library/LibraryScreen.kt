@@ -61,6 +61,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -82,7 +83,7 @@ import com.limersvp.ui.Glyphs
 import com.limersvp.ui.components.HoldButton
 import com.limersvp.ui.components.IconBtn
 import com.limersvp.ui.components.Pill
-import com.limersvp.ui.format.Fmt
+import com.limersvp.ui.format.rememberFmt
 import com.limersvp.ui.theme.LocalPalette
 import com.limersvp.ui.theme.Numbers
 import kotlinx.coroutines.Dispatchers
@@ -98,14 +99,14 @@ fun LibraryScreen(c: Container, onOpen: (String) -> Unit) {
     val books by c.library.books.collectAsStateWithLifecycle()
     val progress by c.importer.progress.collectAsStateWithLifecycle()
     val settings by c.settings.state.collectAsStateWithLifecycle()
-    var notice by remember { mutableStateOf<String?>(null) }
+    var notice by remember { mutableStateOf<Int?>(null) }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
         uris.forEach { c.importer.import(it) }
     }
     LaunchedEffect(Unit) {
         c.importer.events.collect { e ->
-            if (e is ImportEvent.Already && !e.open) notice = "Already in your library"
+            if (e is ImportEvent.Already && !e.open) notice = R.string.library_already
         }
     }
     LaunchedEffect(notice) {
@@ -131,7 +132,7 @@ fun LibraryScreen(c: Container, onOpen: (String) -> Unit) {
             ) {
                 item(span = { GridItemSpan(maxLineSpan) }, key = "head") {
                     Row(Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("Library", style = MaterialTheme.typography.headlineLarge, color = p.text, modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.library), style = MaterialTheme.typography.headlineLarge, color = p.text, modifier = Modifier.weight(1f))
                         IconBtn(Glyphs.Plus, { picker.launch(MIME) }, tint = p.onAccent, background = p.accent, size = 46.dp)
                     }
                 }
@@ -150,7 +151,7 @@ fun LibraryScreen(c: Container, onOpen: (String) -> Unit) {
             modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 96.dp),
         ) {
             Text(
-                notice.orEmpty(), color = p.text, fontSize = 14.sp,
+                notice?.let { stringResource(it) }.orEmpty(), color = p.text, fontSize = 14.sp,
                 modifier = Modifier.clip(RoundedCornerShape(50)).background(p.raised).padding(horizontal = 18.dp, vertical = 10.dp),
             )
         }
@@ -167,11 +168,11 @@ private fun Empty(onAdd: () -> Unit, onSample: () -> Unit) {
     ) {
         LimeMark(Modifier.size(84.dp))
         Spacer(Modifier.height(28.dp))
-        Text("Add an EPUB or PDF", color = p.text, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.library_empty), color = p.text, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(24.dp))
-        Pill("Add a book", onAdd, icon = Glyphs.Plus)
+        Pill(stringResource(R.string.library_add), onAdd, icon = Glyphs.Plus)
         Spacer(Modifier.height(10.dp))
-        Pill("Try a sample", onSample, primary = false)
+        Pill(stringResource(R.string.library_sample), onSample, primary = false)
         Spacer(Modifier.height(80.dp))
     }
 }
@@ -201,6 +202,7 @@ fun LimeMark(modifier: Modifier = Modifier) {
 @Composable
 private fun Continue(c: Container, b: BookMeta, wpm: Int, theme: ReaderTheme, onOpen: (String) -> Unit) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
     Row(
         Modifier
             .fillMaxWidth()
@@ -213,7 +215,7 @@ private fun Continue(c: Container, b: BookMeta, wpm: Int, theme: ReaderTheme, on
         Cover(c, b, theme, Modifier.width(76.dp).aspectRatio(2f / 3f))
         Spacer(Modifier.width(16.dp))
         Column(Modifier.weight(1f)) {
-            Text("Continue", color = p.accent, fontSize = 12.sp, letterSpacing = 1.2.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.library_continue), color = p.accent, fontSize = 12.sp, letterSpacing = 1.2.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(4.dp))
             Text(b.title, color = p.text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
             if (b.chapterTitle.isNotBlank()) {
@@ -223,7 +225,7 @@ private fun Continue(c: Container, b: BookMeta, wpm: Int, theme: ReaderTheme, on
             Bar(b.fraction)
             Spacer(Modifier.height(6.dp))
             Text(
-                Fmt.percent(b.fraction) + "  ·  " + Fmt.estimate(left(b, wpm)) + " left",
+                fmt.percent(b.fraction) + "  ·  " + stringResource(R.string.fmt_left, fmt.estimate(left(b, wpm))),
                 style = Numbers.copy(fontSize = 12.sp, color = p.dim), maxLines = 1,
             )
         }
@@ -280,7 +282,7 @@ private fun BookCard(c: Container, b: BookMeta, importing: Float?, wpm: Int, the
         DropdownMenu(menu, { menu = false }, shape = RoundedCornerShape(18.dp), containerColor = p.raised) {
             if (b.status == BookStatus.READY) {
                 DropdownMenuItem(
-                    text = { Text(if (b.finished) "Mark as unread" else "Mark as finished", color = p.text) },
+                    text = { Text(stringResource(if (b.finished) R.string.library_mark_unread else R.string.library_mark_finished), color = p.text) },
                     leadingIcon = { Icon(Glyphs.Flag, null, tint = p.dim) },
                     onClick = {
                         menu = false
@@ -288,7 +290,7 @@ private fun BookCard(c: Container, b: BookMeta, importing: Float?, wpm: Int, the
                     },
                 )
                 if (b.started) DropdownMenuItem(
-                    text = { Text("Start over", color = p.text) },
+                    text = { Text(stringResource(R.string.library_start_over), color = p.text) },
                     leadingIcon = { Icon(Glyphs.Restart, null, tint = p.dim) },
                     onClick = {
                         menu = false
@@ -297,7 +299,7 @@ private fun BookCard(c: Container, b: BookMeta, importing: Float?, wpm: Int, the
                 )
             }
             Box(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                HoldButton("Hold to remove", {
+                HoldButton(stringResource(R.string.library_remove), {
                     menu = false
                     c.stats.forgetBook(b.id)
                     c.library.remove(b.id)
@@ -307,19 +309,25 @@ private fun BookCard(c: Container, b: BookMeta, importing: Float?, wpm: Int, the
     }
 }
 
-private fun statusLine(b: BookMeta, wpm: Int): String = when (b.status) {
-    BookStatus.IMPORTING -> "Getting it ready"
-    BookStatus.FAILED -> when (b.error) {
-        ImportException.Reason.LOCKED.name -> "Locked with a password"
-        ImportException.Reason.NO_TEXT.name -> "No text, only images"
-        ImportException.Reason.NOT_A_BOOK.name -> "Not a book file"
-        ImportException.Reason.TOO_BIG.name -> "Too big for this phone"
-        else -> "Couldn't read it · tap to retry"
-    }
-    BookStatus.READY -> when {
-        b.finished -> "Finished"
-        b.started -> Fmt.percent(b.fraction) + " · " + Fmt.minutes(left(b, wpm))
-        else -> Fmt.minutes(left(b, wpm))
+@Composable
+private fun statusLine(b: BookMeta, wpm: Int): String {
+    val fmt = rememberFmt()
+    return when (b.status) {
+        BookStatus.IMPORTING -> stringResource(R.string.book_importing)
+        BookStatus.FAILED -> stringResource(
+            when (b.error) {
+                ImportException.Reason.LOCKED.name -> R.string.book_locked
+                ImportException.Reason.NO_TEXT.name -> R.string.book_no_text
+                ImportException.Reason.NOT_A_BOOK.name -> R.string.book_not_a_book
+                ImportException.Reason.TOO_BIG.name -> R.string.book_too_big
+                else -> R.string.book_failed
+            }
+        )
+        BookStatus.READY -> when {
+            b.finished -> stringResource(R.string.finished)
+            b.started -> fmt.percent(b.fraction) + " · " + fmt.minutes(left(b, wpm))
+            else -> fmt.minutes(left(b, wpm))
+        }
     }
 }
 

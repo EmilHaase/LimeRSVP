@@ -67,6 +67,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -84,6 +85,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.limersvp.LimeApp
+import com.limersvp.R
 import com.limersvp.core.BookContent
 import com.limersvp.core.HeadingFrame
 import com.limersvp.core.Orp
@@ -104,6 +106,7 @@ import com.limersvp.ui.components.SpeedKnob
 import com.limersvp.ui.components.SpeedScale
 import com.limersvp.ui.components.Waiting
 import com.limersvp.ui.format.Fmt
+import com.limersvp.ui.format.rememberFmt
 import com.limersvp.ui.theme.LocalPalette
 import com.limersvp.ui.theme.Numbers
 import kotlinx.coroutines.delay
@@ -134,7 +137,7 @@ fun ReaderScreen(bookId: String, onClose: () -> Unit) {
                 BackHandler(onBack = onClose)
                 val show = rememberGrace(true)
                 if (show) Waiting(
-                    if (l.progress != null) "Preparing the book" else "Opening the book",
+                    stringResource(if (l.progress != null) R.string.reader_preparing else R.string.reader_opening),
                     l.progress,
                     Modifier.align(Alignment.Center),
                 )
@@ -143,11 +146,11 @@ fun ReaderScreen(bookId: String, onClose: () -> Unit) {
             Load.Missing -> {
                 BackHandler(onBack = onClose)
                 Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("This book can't be opened.", color = p.text, fontSize = 18.sp, textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.reader_missing), color = p.text, fontSize = 18.sp, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(6.dp))
-                    Text("Remove it from the library and add the file again.", color = p.dim, fontSize = 15.sp, textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.reader_missing_hint), color = p.dim, fontSize = 15.sp, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(24.dp))
-                    Pill("Library", onClose)
+                    Pill(stringResource(R.string.library), onClose)
                 }
             }
 
@@ -165,6 +168,7 @@ fun ReaderScreen(bookId: String, onClose: () -> Unit) {
 @Composable
 private fun Reader(vm: ReaderViewModel, engine: RsvpEngine, content: BookContent, settings: Settings, onClose: () -> Unit) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
     val haptics = LocalHaptics.current
     val reduce = LocalReduceMotion.current
     val density = LocalDensity.current
@@ -305,7 +309,7 @@ private fun Reader(vm: ReaderViewModel, engine: RsvpEngine, content: BookContent
                 val chIndex = content.chapterIndexOf(still)
                 val chEnd = if (chIndex >= 0) content.chapterEnd(chIndex) else content.size
                 Text(
-                    if (content.chapters.isEmpty()) "" else Fmt.minutes(vm.msBetween(still, chEnd)) + " in chapter",
+                    if (content.chapters.isEmpty()) "" else stringResource(R.string.fmt_in_chapter, fmt.minutes(vm.msBetween(still, chEnd))),
                     style = Numbers.copy(fontSize = 12.sp, color = p.dim),
                     modifier = Modifier.weight(1f).graphicsLayer { alpha = chromeAlpha },
                     maxLines = 1,
@@ -327,7 +331,7 @@ private fun Reader(vm: ReaderViewModel, engine: RsvpEngine, content: BookContent
                     )
                 }
                 Text(
-                    Fmt.minutes(vm.msBetween(still, content.size)) + " left",
+                    stringResource(R.string.fmt_left, fmt.minutes(vm.msBetween(still, content.size))),
                     style = Numbers.copy(fontSize = 12.sp, color = p.dim, textAlign = TextAlign.End),
                     modifier = Modifier.weight(1f).graphicsLayer { alpha = chromeAlpha },
                     maxLines = 1,
@@ -382,7 +386,8 @@ private fun Reader(vm: ReaderViewModel, engine: RsvpEngine, content: BookContent
             Modifier.windowInsetsPadding(insets).padding(10.dp).fillMaxWidth().fillMaxHeight(0.86f),
         ) {
             val f = engine.frame()
-            val sample = (f as? WordFrame) ?: WordFrame("Reading", Orp.range("Reading").first, Orp.range("Reading").last + 1)
+            val word = stringResource(R.string.reader_sample_word)
+            val sample = (f as? WordFrame) ?: WordFrame(word, Orp.range(word).first, Orp.range(word).last + 1)
             ReaderOptions(settings, sample, { block -> vm.settingsRepo.update(block) })
         }
 
@@ -537,7 +542,7 @@ private fun ContextLine(content: BookContent, position: Int, settings: Settings,
         color = p.faint,
         fontSize = 15.sp,
         lineHeight = 22.sp,
-        fontFamily = familyOf(settings.font),
+        fontFamily = familyOf(settings.font, p.light),
         textAlign = TextAlign.Center,
         maxLines = 3,
         minLines = 3,
@@ -549,11 +554,12 @@ private fun ContextLine(content: BookContent, position: Int, settings: Settings,
 @Composable
 private fun BottomInfo(vm: ReaderViewModel, content: BookContent, still: Int, alpha: Float, railFrac: Float?) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
     Box(Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 20.dp)) {
         val pos = railFrac?.let { (it * (content.size - 1)).roundToInt() } ?: still
         val ch = content.chapterIndexOf(pos)
         val title = if (ch >= 0) content.chapters[ch].title else vm.title
-        val pct = Fmt.percent(pos.toFloat() / (content.size - 1).coerceAtLeast(1))
+        val pct = fmt.percent(pos.toFloat() / (content.size - 1).coerceAtLeast(1))
         val a = if (railFrac != null) 1f else alpha
         Row(
             Modifier.align(Alignment.BottomStart).fillMaxWidth().graphicsLayer { this.alpha = a },
@@ -573,6 +579,7 @@ private fun BottomInfo(vm: ReaderViewModel, content: BookContent, still: Int, al
 @Composable
 private fun ScrubHeader(engine: RsvpEngine, content: BookContent, modifier: Modifier) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
     val pos = engine.position
     val ch = content.chapterIndexOf(pos)
     Row(
@@ -586,13 +593,14 @@ private fun ScrubHeader(engine: RsvpEngine, content: BookContent, modifier: Modi
             Text(content.chapters[ch].title, color = p.text, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
             Spacer(Modifier.width(10.dp))
         }
-        Text(Fmt.percent(pos.toFloat() / (content.size - 1).coerceAtLeast(1)), style = Numbers.copy(fontSize = 13.sp, color = p.dim))
+        Text(fmt.percent(pos.toFloat() / (content.size - 1).coerceAtLeast(1)), style = Numbers.copy(fontSize = 13.sp, color = p.dim))
     }
 }
 
 @Composable
 private fun UndoChip(vm: ReaderViewModel, chrome: Boolean, modifier: Modifier) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
     val to = vm.undoTo
     val content = vm.content
     AnimatedVisibility(
@@ -602,7 +610,7 @@ private fun UndoChip(vm: ReaderViewModel, chrome: Boolean, modifier: Modifier) {
         modifier = modifier,
     ) {
         val target = to ?: 0
-        val pct = content?.let { Fmt.percent(target.toFloat() / (it.size - 1).coerceAtLeast(1)) }.orEmpty()
+        val pct = content?.let { fmt.percent(target.toFloat() / (it.size - 1).coerceAtLeast(1)) }.orEmpty()
         Row(
             Modifier
                 .clip(RoundedCornerShape(50))
@@ -613,7 +621,7 @@ private fun UndoChip(vm: ReaderViewModel, chrome: Boolean, modifier: Modifier) {
         ) {
             Icon(Glyphs.Undo, null, tint = p.text, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text("Back to $pct", color = p.text, fontSize = 14.sp)
+            Text(stringResource(R.string.reader_back_to, pct), color = p.text, fontSize = 14.sp)
         }
     }
 }
@@ -622,6 +630,7 @@ private fun UndoChip(vm: ReaderViewModel, chrome: Boolean, modifier: Modifier) {
 @Composable
 private fun SpeedBubble(visible: Boolean, wpm: Int, left: Long?, modifier: Modifier) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
     val reduce = LocalReduceMotion.current
     AnimatedVisibility(
         visible,
@@ -639,9 +648,9 @@ private fun SpeedBubble(visible: Boolean, wpm: Int, left: Long?, modifier: Modif
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(wpm.toString(), style = Numbers.copy(fontSize = 34.sp, fontWeight = FontWeight.SemiBold, color = p.text))
                 Spacer(Modifier.width(4.dp))
-                Text("wpm", color = p.dim, fontSize = 13.sp, modifier = Modifier.padding(bottom = 6.dp))
+                Text(stringResource(R.string.wpm), color = p.dim, fontSize = 13.sp, modifier = Modifier.padding(bottom = 6.dp))
             }
-            Text(Fmt.estimate(left) + " left", style = Numbers.copy(fontSize = 12.sp, color = p.dim), maxLines = 1)
+            Text(stringResource(R.string.fmt_left, fmt.estimate(left)), style = Numbers.copy(fontSize = 12.sp, color = p.dim), maxLines = 1)
         }
     }
 }
@@ -649,27 +658,28 @@ private fun SpeedBubble(visible: Boolean, wpm: Int, left: Long?, modifier: Modif
 @Composable
 private fun Finished(vm: ReaderViewModel, onClose: () -> Unit) {
     val p = LocalPalette.current
+    val fmt = rememberFmt()
     val reduce = LocalReduceMotion.current
     val c = (LocalContext.current.applicationContext as LimeApp).container
     AnimatedVisibility(vm.finishedNow, enter = fadeIn(tween(if (reduce) 0 else 200)), exit = fadeOut(tween(150))) {
         Box(Modifier.fillMaxSize().background(p.bg.copy(alpha = 0.94f)).pointerInput(Unit) { awaitEachGesture { awaitFirstDown().consume() } }) {
             val meta = c.library.get(vm.bookId)
             Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Finished", color = p.accent, fontSize = 15.sp, letterSpacing = 2.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.finished), color = p.accent, fontSize = 15.sp, letterSpacing = 2.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(10.dp))
                 Text(vm.title, color = p.text, fontSize = 24.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, maxLines = 3, overflow = TextOverflow.Ellipsis)
                 Spacer(Modifier.height(24.dp))
                 if (meta != null && meta.readMs > 0) {
                     Row(horizontalArrangement = Arrangement.spacedBy(28.dp)) {
-                        Fact(Fmt.spent(meta.readMs), "reading")
+                        Fact(fmt.spent(meta.readMs), stringResource(R.string.reader_reading))
                         val wpm = if (meta.readMs > 30_000) (meta.words * 60_000 / meta.readMs).toString() else Fmt.UNKNOWN
-                        Fact(wpm, "wpm average")
+                        Fact(wpm, stringResource(R.string.reader_wpm_average))
                     }
                     Spacer(Modifier.height(32.dp))
                 }
-                Pill("Library", onClose)
+                Pill(stringResource(R.string.library), onClose)
                 Spacer(Modifier.height(10.dp))
-                Pill("Read again", { vm.readAgain() }, primary = false, icon = Glyphs.Restart)
+                Pill(stringResource(R.string.reader_read_again), { vm.readAgain() }, primary = false, icon = Glyphs.Restart)
             }
         }
     }
