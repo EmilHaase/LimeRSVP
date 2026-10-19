@@ -138,4 +138,19 @@
         <item quantity="many">Rychlost, posledních %d dne</item>
         <item quantity="other">Rychlost, posledních %d dní</item>
     </plurals>
+    <string name="about_license">Svobodný software pod licencí GPL-3.0-or-later, bez jakékoli záruky.</string>
+    <string name="about_source">Zdrojový kód</string>
+    <string name="about_licenses">Licence</string>
+    <string name="licenses_title">Licence</string>
+    <string name="licenses_app">LimeRSVP</string>
+    <string name="licenses_app_terms">Doplňující podmínky</string>
+    <string name="licenses_jetpack">Android Jetpack a Kotlin</string>
+    <string name="tut_read">Podržte prst kdekoli na obrazovce a čtěte. Zvednutím zastavíte.</string>
+    <string name="tut_read_tap">Klepnutím kamkoli začnete číst, dalším klepnutím zastavíte.</string>
+    <string name="tut_back">Jedním klepnutím se vrátíte na začátek věty.</string>
+    <string name="tut_scrub">Posunem dvou prstů do strany se pohybujete textem.</string>
+    <string name="tut_speed">Posunem dvou prstů nahoru či dolů, nebo otočením knoflíku, změníte rychlost.</string>
+    <string name="tut_done">To je vše. Příjemné čtení.</string>
+    <string name="tut_skip">Přeskočit</string>
+    <string name="settings_tutorial">Ukázat návod</string>
 </resources>

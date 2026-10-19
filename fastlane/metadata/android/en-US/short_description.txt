@@ -1,0 +1,1 @@
+Speed reader for EPUB, PDF and TXT: one word at a time, hold to read

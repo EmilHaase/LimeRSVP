@@ -91,6 +91,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 
+/** File name the built-in sample story is imported under. */
+const val SAMPLE_NAME = "LimeRSVP.html"
+
 private val MIME = arrayOf("application/epub+zip", "application/pdf", "text/plain", "text/html", "application/octet-stream", "application/xhtml+xml")
 
 @Composable
@@ -121,7 +124,7 @@ fun LibraryScreen(c: Container, onOpen: (String) -> Unit) {
 
     Box(Modifier.fillMaxSize()) {
         if (books.isEmpty()) {
-            Empty(onAdd = { picker.launch(MIME) }, onSample = { c.importer.importResource(R.raw.sample, "LimeRSVP.html", open = true) })
+            Empty(onAdd = { picker.launch(MIME) }, onSample = { c.importer.importResource(R.raw.sample, SAMPLE_NAME, open = true) })
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(148.dp),

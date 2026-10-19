@@ -41,6 +41,7 @@ data class Settings(
     val dailyGoal: Int = 0,
     /** Earned by finishing a book. Never announced. */
     val leaf: Boolean = false,
+    val tutorialDone: Boolean = false,
 )
 
 class SettingsRepository(context: Context) {
@@ -84,6 +85,7 @@ class SettingsRepository(context: Context) {
             skipFrontMatter = prefs.getBoolean("skipFrontMatter", d.skipFrontMatter),
             dailyGoal = prefs.getInt("dailyGoal", d.dailyGoal),
             leaf = prefs.getBoolean("leaf", d.leaf),
+            tutorialDone = prefs.getBoolean("tutorialDone", d.tutorialDone),
         )
     }
 
@@ -111,6 +113,7 @@ class SettingsRepository(context: Context) {
             .putBoolean("skipFrontMatter", s.skipFrontMatter)
             .putInt("dailyGoal", s.dailyGoal)
             .putBoolean("leaf", s.leaf)
+            .putBoolean("tutorialDone", s.tutorialDone)
             .apply()
     }
 }

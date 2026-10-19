@@ -9,18 +9,10 @@ import android.os.VibratorManager
 import com.limersvp.data.HapticLevel
 
 /**
- * One vibration per moment, tuned per motor.
- *
- * Why vibrations "did not work" on many phones:
- *  - View.performHapticFeedback is silenced by the system "touch feedback" switch and by OEMs.
- *  - VibrationEffect predefined effects need Android 10; on 9 they do not exist.
- *  - A 10 ms pulse on a cheap ERM motor never spins it up, so nothing is felt.
- *  - Firing a new vibration every few ms cancels the previous one before it is felt.
- * So this talks to the Vibrator directly, picks primitives / predefined effects / timed pulses
- * by what the motor can do, and rate-limits detent ticks.
- *
- * Detent ticks (the knob) play only on motors that can do a crisp tick: on a buzzer they would
- * be a buzz running through the gesture, and silence is better.
+ * One vibration per moment, tuned to what the motor can do: composition primitives, predefined
+ * effects, or pulses long enough for a cheap motor to spin up. Uses the Vibrator directly because
+ * performHapticFeedback is silenced by the system touch-feedback switch on many phones.
+ * Detent ticks play only on motors that can tick crisply; rapid ticks are rate-limited.
  */
 class Haptics(context: Context) {
     private val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= 31) {

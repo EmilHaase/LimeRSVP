@@ -110,7 +110,8 @@ fun BookView(
                     val fade = 72.dp.toPx()
                     drawRect(
                         Brush.verticalGradient(
-                            0f to Color.Transparent, (topPadding.toPx() + fade) / size.height to Color.Black,
+                            0f to Color.Transparent, topPadding.toPx() / size.height to Color.Transparent,
+                            (topPadding.toPx() + fade) / size.height to Color.Black,
                             1f - fade / size.height to Color.Black, 1f to Color.Transparent,
                         ),
                         blendMode = BlendMode.DstIn,

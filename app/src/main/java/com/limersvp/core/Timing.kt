@@ -1,14 +1,8 @@
 package com.limersvp.core
 
 /**
- * How long a word stays, in "word units": 1.0 is one word at the chosen speed.
- * At 600 wpm one unit is 100 ms.
- *
- * Based on eye-movement research (Rayner and colleagues): readers dwell longer on long and rare
- * words and on names, glide over short function words, and need a real pause at the end of a
- * sentence (taking that pause away measurably hurts comprehension in RSVP). Clause and
- * paragraph pauses are what RSVP readers prefer. Proportions follow other careful readers
- * (sentence ~2x, comma ~1.4x, paragraph ~2.5x, long words +15-40%, names +30-50%).
+ * How long a word stays, in "word units": 1.0 is one word at the chosen speed (100 ms at 600 wpm).
+ * The values and the research behind them are in docs/DESIGN.md.
  */
 class Timing(
     val smart: Boolean = true,

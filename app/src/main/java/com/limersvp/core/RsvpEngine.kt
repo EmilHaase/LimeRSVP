@@ -295,10 +295,7 @@ class RsvpEngine(val content: BookContent, timing: Timing) {
         /** A lift longer than this is a break: the next start goes back to the sentence start. */
         const val BREAK_NANOS = 30_000_000_000L
 
-        /**
-         * RSVP readers blink far less than normal readers, which tires the eyes. After this much
-         * reading without a paragraph break, the next sentence end holds a moment longer.
-         */
+        /** After this much reading without a paragraph break, a sentence end holds a moment for a blink. */
         const val REST_AFTER_MS = 20_000.0
         const val REST_MS = 380.0
     }

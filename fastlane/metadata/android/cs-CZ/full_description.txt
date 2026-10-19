@@ -1,0 +1,35 @@
+LimeRSVP vám ukazuje knihy po jednom slově, přesně tam, kam se už díváte, a písmeno, na které se máte podívat, je zvýrazněné. Podržte prst na obrazovce a čtěte; zvednete ho a vše se okamžitě zastaví.
+
+<b>Čtení, které působí přirozeně</b>
+<ul>
+<li>Čtení začne pozvolna a zrychlí na vaši rychlost.</li>
+<li>Dlouhá, vzácná a neznámá slova zůstanou déle, krátká proběhnou rychle.</li>
+<li>Každá čárka, věta i odstavec má vlastní pauzu.</li>
+<li>Rychlé klepnutí vás vrátí na začátek věty.</li>
+<li>Dva prsty do strany otevřou stránku a posouvají se textem jako kurzor.</li>
+<li>Rychlost změníte otočením knoflíku nebo posunem dvou prstů nahoru a dolů.</li>
+</ul>
+
+<b>Vaše knihy, jak mají být</b>
+<ul>
+<li>EPUB, PDF, TXT a HTML se skutečnými kapitolami.</li>
+<li>Obálky, tiráže a obsahy se přeskočí.</li>
+<li>Poznámky pod čarou, čísla stran a záhlaví se vynechají.</li>
+<li>Funguje s češtinou, polštinou, němčinou, francouzštinou a všemi dalšími jazyky v latince, s azbukou, řečtinou, arabštinou, hebrejštinou, čínštinou, japonštinou i thajštinou.</li>
+</ul>
+
+<b>Šetrné k očím</b>
+<ul>
+<li>Čistě černá pro OLED displeje, noční červená, která šetří noční vidění, jantarová, tlumená a denní.</li>
+<li>Výchozí písmo Atkinson Hyperlegible Next: písmena, která si nespletete.</li>
+</ul>
+
+<b>Vždy víte, kde jste</b>
+<ul>
+<li>Kapitola, postup a poctivý odhad zbývajícího času při vaší rychlosti.</li>
+<li>Statistiky: skutečná rychlost čtení, čas za den, série dní a volitelný denní cíl.</li>
+</ul>
+
+Žádné reklamy, žádné sledování a žádné oprávnění k internetu: vaše knihy nikdy neopustí telefon.
+
+LimeRSVP je svobodný software pod licencí GPL-3.0-or-later.

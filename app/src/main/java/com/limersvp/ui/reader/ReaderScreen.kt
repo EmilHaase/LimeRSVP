@@ -204,7 +204,6 @@ private fun Reader(vm: ReaderViewModel, engine: RsvpEngine, content: BookContent
     }
     val chromeAlpha by animateFloatAsState(if (chrome) 1f else 0f, tween(if (reduce) 0 else if (chrome) 240 else 110), label = "chrome")
 
-    // Volume keys.
     val vmState by rememberUpdatedState(vm)
     val mode by rememberUpdatedState(settings.volumeKeys)
     DisposableEffect(Unit) {
@@ -247,7 +246,6 @@ private fun Reader(vm: ReaderViewModel, engine: RsvpEngine, content: BookContent
 
         val insets = WindowInsets.systemBarsIgnoringVisibility.union(WindowInsets.displayCutout)
         Column(Modifier.fillMaxSize().windowInsetsPadding(insets)) {
-            // Top bar.
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -263,7 +261,6 @@ private fun Reader(vm: ReaderViewModel, engine: RsvpEngine, content: BookContent
                 IconBtn(Glyphs.Tune, { panel = Panel.OPTIONS }, enabled = chrome, tint = p.dim)
             }
 
-            // The word.
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 WordStage({ engine.frame() }, settings, Modifier.fillMaxSize())
                 if (settings.context && engine.frame() is WordFrame) {
@@ -276,10 +273,13 @@ private fun Reader(vm: ReaderViewModel, engine: RsvpEngine, content: BookContent
                             .graphicsLayer { alpha = chromeAlpha * 0.9f },
                     )
                 }
-                UndoChip(vm, chrome, Modifier.align(Alignment.TopCenter).padding(top = 4.dp))
+                UndoChip(vm, chrome && vm.tutorialStep < 0, Modifier.align(Alignment.TopCenter).padding(top = 4.dp))
+                TutorialCard(
+                    vm.tutorialStep, playing, settings.playMode == PlayMode.TAP, { vm.finishTutorial() },
+                    Modifier.align(Alignment.TopCenter).padding(top = 4.dp),
+                )
             }
 
-            // Where we are.
             BottomInfo(vm, content, still, chromeAlpha, railFrac)
             ProgressRail(
                 fraction = { engine.position.toFloat() / (content.size - 1).coerceAtLeast(1) },

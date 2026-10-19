@@ -76,11 +76,8 @@ object SpeedScale {
 }
 
 /**
- * A real knob: grab it and turn it. Detents every 25 wpm tick under the finger (on motors that
- * can tick), 600 has its own click, both ends stiffen and click once. A tap spins it one turn
- * (it is a fact, not a button), a long press sends it home to 600.
- *
- * [driven] is true while two fingers change the speed elsewhere: the knob turns and lifts the same way.
+ * Turn it to set the speed: detents every 25 wpm, its own click at 600, soft ends. A tap spins it
+ * once, a long press sends it home to 600. [driven] lifts it while the speed changes elsewhere.
  */
 @Composable
 fun SpeedKnob(
@@ -224,17 +221,14 @@ fun SpeedKnob(
             val stroke = 2.4.dp.toPx()
             val tl = Offset(center.x - ring, center.y - ring)
             val arcSize = androidx.compose.ui.geometry.Size(ring * 2, ring * 2)
-            // The scale.
             drawArc(p.track, -90f - SpeedScale.SWEEP, SpeedScale.SWEEP * 2, false, tl, arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
             // How far from 600: an arc from the top to where the knob points.
             val shown = va.coerceIn(-SpeedScale.SWEEP, SpeedScale.SWEEP)
             if (abs(shown) > 0.5f) {
                 drawArc(p.accent, -90f, shown, false, tl, arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
             }
-            // Home mark at the top.
             drawLine(p.dim, Offset(center.x, center.y - ring - 1.dp.toPx()), Offset(center.x, center.y - ring + 4.dp.toPx()), 1.6.dp.toPx(), StrokeCap.Round)
 
-            // The knob body.
             val body = ring - 6.dp.toPx()
             drawCircle(
                 Brush.radialGradient(
@@ -257,7 +251,6 @@ fun SpeedKnob(
                     1.dp.toPx(),
                 )
             }
-            // The pointer dot.
             val a = Math.toRadians(va.toDouble())
             val pr = body - 9.dp.toPx()
             drawCircle(

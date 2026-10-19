@@ -1,0 +1,35 @@
+LimeRSVP shows your books one word at a time, right where your eyes already are, with the letter to look at lit up. Hold your finger on the screen to read; lift it and everything stops at once.
+
+<b>Reading that feels natural</b>
+<ul>
+<li>Reading starts gently and eases up to your speed.</li>
+<li>Long, rare and unfamiliar words stay longer; short words pass quickly.</li>
+<li>Every comma, sentence and paragraph gets its own pause.</li>
+<li>A quick tap goes back to the start of the sentence.</li>
+<li>Two fingers sideways open the page and move through the text like a cursor.</li>
+<li>Turn the speed knob, or slide two fingers up and down.</li>
+</ul>
+
+<b>Your books, properly</b>
+<ul>
+<li>EPUB, PDF, TXT and HTML, with their real chapters.</li>
+<li>Covers, copyright pages and tables of contents are skipped.</li>
+<li>Footnotes, page numbers and running headers are left out.</li>
+<li>Works with Czech, Polish, German, French and every other Latin-script language, Cyrillic, Greek, Arabic, Hebrew, Chinese, Japanese and Thai.</li>
+</ul>
+
+<b>Easy on the eyes</b>
+<ul>
+<li>Pure black for OLED screens, night red that keeps your night vision, amber, dim and day themes.</li>
+<li>Atkinson Hyperlegible Next as the default font: letters that are hard to mistake.</li>
+</ul>
+
+<b>Always know where you are</b>
+<ul>
+<li>Chapter, progress and an honest estimate of the time left at your speed.</li>
+<li>Statistics: real reading speed, time per day, streaks and an optional daily goal.</li>
+</ul>
+
+No ads, no tracking and no internet permission: your books never leave your phone.
+
+LimeRSVP is free software under the GPL-3.0-or-later license.

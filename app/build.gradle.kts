@@ -14,14 +14,16 @@ android {
         minSdk = 28
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
     }
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Reproducible builds: no git metadata inside the APK.
+            vcsInfo.include = false
         }
     }
     compileOptions {
@@ -30,6 +32,11 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    // The dependency block is encrypted with a Google key; F-Droid does not accept it.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
     packaging {
         resources {

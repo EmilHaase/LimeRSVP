@@ -25,12 +25,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,10 +53,14 @@ import com.limersvp.data.WordFont
 import com.limersvp.feel.LocalHaptics
 import com.limersvp.feel.rememberShaker
 import com.limersvp.feel.shake
+import android.content.Intent
+import android.net.Uri
 import com.limersvp.ui.components.Choices
+import com.limersvp.ui.components.GrowPanel
 import com.limersvp.ui.components.SettingRow
 import com.limersvp.ui.components.Toggle
 import com.limersvp.ui.library.LimeMark
+import com.limersvp.ui.library.SAMPLE_NAME
 import com.limersvp.ui.reader.HighlightDots
 import com.limersvp.ui.reader.ThemeDots
 import com.limersvp.ui.reader.WordStage
@@ -70,6 +78,8 @@ fun SettingsScreen(c: Container, onOpen: (String) -> Unit) {
     val word = stringResource(R.string.settings_sample_word)
     val sample = remember(word) { WordFrame(word, Orp.range(word).first, Orp.range(word).last + 1) }
 
+    var licenses by remember { mutableStateOf(false) }
+    Box(Modifier.fillMaxSize()) {
     Column(
         Modifier
             .fillMaxSize()
@@ -88,6 +98,11 @@ fun SettingsScreen(c: Container, onOpen: (String) -> Unit) {
             Switch(stringResource(R.string.settings_rewind), s.rewind) { set { it.copy(rewind = !it.rewind) } }
             Switch(stringResource(R.string.settings_stop_chapter), s.stopAtChapter) { set { it.copy(stopAtChapter = !it.stopAtChapter) } }
             Switch(stringResource(R.string.settings_skip_front), s.skipFrontMatter) { set { it.copy(skipFrontMatter = !it.skipFrontMatter) } }
+            // Replays on the sample story, which opens straight away.
+            SettingRow(stringResource(R.string.settings_tutorial), onClick = {
+                set { it.copy(tutorialDone = false) }
+                c.importer.importResource(R.raw.sample, SAMPLE_NAME, open = true)
+            })
         }
 
         Section(stringResource(R.string.settings_timing)) {
@@ -143,7 +158,12 @@ fun SettingsScreen(c: Container, onOpen: (String) -> Unit) {
             Spacer(Modifier.height(8.dp))
         }
 
-        About(c, onOpen)
+        About(c, onLicenses = { licenses = true })
+    }
+    GrowPanel(
+        licenses, TransformOrigin(0.6f, 0.95f), { licenses = false },
+        Modifier.statusBarsPadding().padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 96.dp).fillMaxSize(),
+    ) { Licenses(Modifier.fillMaxSize()) }
     }
 }
 
@@ -178,7 +198,7 @@ private fun Switch(title: String, on: Boolean, onToggle: () -> Unit) {
 
 /** The version line. Some say it hides something. */
 @Composable
-private fun About(c: Container, onOpen: (String) -> Unit) {
+private fun About(c: Container, onLicenses: () -> Unit) {
     val p = LocalPalette.current
     val shaker = rememberShaker()
     var taps by remember { mutableIntStateOf(0) }
@@ -203,7 +223,47 @@ private fun About(c: Container, onOpen: (String) -> Unit) {
                 }
                 .padding(horizontal = 24.dp, vertical = 8.dp)
         ) {
-            Text(stringResource(R.string.version_line), color = p.faint, fontSize = 13.sp)
+            Text(stringResource(R.string.version_line, version()), color = p.faint, fontSize = 13.sp)
         }
+        Text(stringResource(R.string.about_copyright), color = p.faint, fontSize = 12.sp)
+        Text(
+            stringResource(R.string.about_license), color = p.faint, fontSize = 12.sp, textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 32.dp, vertical = 4.dp),
+        )
+        val context = LocalContext.current
+        val linkShaker = rememberShaker()
+        Row(Modifier.padding(top = 4.dp)) {
+            TextLink(stringResource(R.string.about_source), Modifier.shake(linkShaker)) {
+                val ok = runCatching {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SOURCE_URL)))
+                }.isSuccess
+                if (!ok) linkShaker.shake()
+            }
+            TextLink(stringResource(R.string.about_licenses), onClick = onLicenses)
+        }
+    }
+}
+
+/** Where the source lives; also part of the attribution every fork must keep. */
+const val SOURCE_URL = "https://github.com/EmilHaase/LimeRSVP"
+
+@Composable
+private fun version(): String {
+    val context = LocalContext.current
+    return remember {
+        runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty()
+    }
+}
+
+@Composable
+private fun TextLink(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val p = LocalPalette.current
+    Box(
+        modifier
+            .clip(RoundedCornerShape(50))
+            .clickable(remember { MutableInteractionSource() }, null, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Text(text, color = p.dim, fontSize = 13.sp)
     }
 }

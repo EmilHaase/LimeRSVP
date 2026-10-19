@@ -156,7 +156,7 @@ fun placeWord(
     val right = layout.size.width - cx
     val scale = minOf(1f, (focal - margin) / left.coerceAtLeast(1f), (width - focal - margin) / right.coerceAtLeast(1f))
     if (scale < 0.999f) {
-        // Never below 60%: under the critical print size reading speed falls off sharply.
+        // Never below 60%: smaller than that, reading slows down sharply.
         layout = measurer.measure(ann, wordStyle.copy(fontSize = wordStyle.fontSize * scale.coerceAtLeast(0.6f)), maxLines = 1, softWrap = false)
         cx = orpCenter(layout, f)
     }

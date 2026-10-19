@@ -11,6 +11,7 @@ import com.limersvp.LimeApp
 import com.limersvp.core.BookContent
 import com.limersvp.core.RsvpEngine
 import com.limersvp.core.Timing
+import com.limersvp.data.PlayMode
 import com.limersvp.data.Settings
 import com.limersvp.ui.components.SpeedScale
 import kotlinx.coroutines.Dispatchers
@@ -89,6 +90,7 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
         e.onFinished = { finish() }
         engine = e
         load = Load.Ready
+        if (!s.tutorialDone) tutorialStep = Tutorial.READ
         c.library.update(bookId) { it.copy(openedAt = System.currentTimeMillis()) }
         if (meta.finished) finishedNow = true
         prefix = withContext(Dispatchers.Default) { timing.prefix(content) }
@@ -131,9 +133,8 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
     }
 
     /**
-     * Finger up. A quick tap (nothing read yet) means "again": back to the start of this
-     * sentence, or of the one before when already there. Going back is how readers repair
-     * what they missed, and plain RSVP takes it away.
+     * Finger up. A quick tap (nothing read yet) goes back to the start of this sentence, or of the
+     * one before when already there.
      */
     fun release(tapBack: Boolean = true) {
         val e = engine ?: return
@@ -155,10 +156,12 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
         val here = c.sentenceStart(e.position)
         val target = if (here < e.position) here else c.sentenceStart((here - 1).coerceAtLeast(0))
         if (target == e.position) {
-            haptics.wall(); return
+            // Already at the very start: the gesture still counts for the tutorial.
+            if (tutorialStep == Tutorial.BACK) learned(Tutorial.BACK) else haptics.wall()
+            return
         }
         e.seek(target)
-        haptics.tick()
+        if (tutorialStep == Tutorial.BACK) learned(Tutorial.BACK) else haptics.tick()
         save()
     }
 
@@ -189,6 +192,7 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
                 c.library.update(bookId) { it.copy(readMs = it.readMs + ms, words = it.words + words) }
             }
             wordsSinceJump += words
+            if (words >= 6) learned(Tutorial.READ)
             if (wordsSinceJump > 40) undoTo = null
         }
         save()
@@ -244,6 +248,7 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
     fun scrubEnd(from: Int) {
         val e = engine ?: return
         if (kotlin.math.abs(e.position - from) > 30 && undoTo == null) undoTo = from
+        if (kotlin.math.abs(e.position - from) >= 3) learned(Tutorial.SCRUB)
         wordsSinceJump = 0
         save()
     }
@@ -253,9 +258,39 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
     var grabbingSpeed = false
         private set
 
+    private var speedAtGrab = 0
+
     fun grabSpeed(on: Boolean) {
         grabbingSpeed = on
-        if (!on) settingsRepo.update { it.copy(wpm = engine?.wpm ?: it.wpm) }
+        val wpm = engine?.wpm ?: return
+        if (on) speedAtGrab = wpm
+        else {
+            settingsRepo.update { it.copy(wpm = wpm) }
+            if (wpm != speedAtGrab) learned(Tutorial.SPEED)
+        }
+    }
+
+    // ---- tutorial -----------------------------------------------------------------------------
+
+    /** The gesture being taught, or -1 when the tutorial is off. */
+    var tutorialStep by mutableIntStateOf(-1)
+        private set
+
+    /** The person just did [step]: move on to the next one. */
+    private fun learned(step: Int) {
+        if (tutorialStep != step) return
+        haptics.click()
+        var next = step + 1
+        if (next == Tutorial.BACK && settingsRepo.value.playMode == PlayMode.TAP) next++
+        tutorialStep = next
+        if (next == Tutorial.DONE) viewModelScope.launch {
+            delay(2600); finishTutorial()
+        }
+    }
+
+    fun finishTutorial() {
+        tutorialStep = -1
+        settingsRepo.update { it.copy(tutorialDone = true) }
     }
 
     fun previewSpeed(wpm: Int) {
@@ -315,4 +350,13 @@ class ReaderViewModel(app: Application, val bookId: String) : AndroidViewModel(a
         save()
         c.flush()
     }
+}
+
+/** The tutorial's steps, in order. */
+object Tutorial {
+    const val READ = 0
+    const val BACK = 1
+    const val SCRUB = 2
+    const val SPEED = 3
+    const val DONE = 4
 }

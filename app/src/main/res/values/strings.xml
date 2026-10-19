@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">LimeRSVP</string>
-    <string name="version_line" translatable="false">LimeRSVP 1.0</string>
+    <string name="version_line" translatable="false">LimeRSVP %1$s</string>
+    <string name="about_copyright" translatable="false">© 2026 Emil Haase</string>
+    <string name="about_license">Free software under GPL-3.0-or-later, without any warranty.</string>
+    <string name="about_source">Source code</string>
+    <string name="about_licenses">Licenses</string>
+    <string name="licenses_title">Licenses</string>
+    <string name="licenses_app">LimeRSVP</string>
+    <string name="licenses_app_terms">Additional terms</string>
+    <string name="licenses_jetpack">Android Jetpack and Kotlin</string>
 
     <!-- Units and numbers. Estimates wear a "~"; unknown stays "—" (in code). -->
     <string name="fmt_s">%1$d s</string>
@@ -146,4 +154,12 @@
         <item quantity="one">Speed, last %d day</item>
         <item quantity="other">Speed, last %d days</item>
     </plurals>
+    <string name="tut_read">Hold your finger anywhere on the screen to read. Lift it to stop.</string>
+    <string name="tut_read_tap">Tap anywhere to start reading, and tap again to stop.</string>
+    <string name="tut_back">Tap once to go back to the start of the sentence.</string>
+    <string name="tut_scrub">Slide two fingers sideways to move through the text.</string>
+    <string name="tut_speed">Slide two fingers up or down, or turn the knob, to change the speed.</string>
+    <string name="tut_done">That\'s all. Enjoy reading.</string>
+    <string name="tut_skip">Skip</string>
+    <string name="settings_tutorial">Show the tutorial</string>
 </resources>
