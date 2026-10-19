@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- rind -->
+    <path android:fillColor="#C4F43F"
+        android:pathData="M54,24 A30,30 0 1,1 53.99,24 Z" />
+    <!-- pith ring -->
+    <path android:fillColor="#000000"
+        android:pathData="M54,28 A26,26 0 1,1 53.99,28 Z" />
+    <!-- flesh -->
+    <path android:fillColor="#9CC231"
+        android:pathData="M54,30 A24,24 0 1,1 53.99,30 Z" />
+    <!-- segment membranes -->
+    <path android:strokeColor="#000000" android:strokeWidth="2.2" android:strokeLineCap="round"
+        android:pathData="M54,54 L63.18,31.83 M54,54 L76.17,44.82 M54,54 L76.17,63.18 M54,54 L63.18,76.17 M54,54 L44.82,76.17 M54,54 L31.83,63.18 M54,54 L31.83,44.82 M54,54 L44.82,31.83" />
+    <!-- core -->
+    <path android:fillColor="#000000"
+        android:pathData="M54,50.5 A3.5,3.5 0 1,1 53.99,50.5 Z" />
+</vector>
